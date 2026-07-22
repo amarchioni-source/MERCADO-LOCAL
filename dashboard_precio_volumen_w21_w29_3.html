@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Precio vs Volumen — W21 a W29</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f7f7f5;color:#1a1a1a;min-height:100vh;font-size:14px}
+.topbar{background:#fff;border-bottom:1px solid #e5e5e0;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:10px}
+.topbar h1{font-size:15px;font-weight:600}
+.topbar p{font-size:11px;color:#888;margin-top:2px}
+.nav-pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font-size:12px;padding:5px 14px;border-radius:20px;cursor:pointer;border:1px solid #e0e0da;color:#666;background:#fff;font-weight:500;transition:all .15s}
+.pill:hover{border-color:#999;color:#333}
+.pill.on{background:#1a1a1a;border-color:#1a1a1a;color:#fff}
+.pill.band{background:#d97706;border-color:#d97706;color:#fff}
+.content{max-width:1150px;margin:0 auto;padding:20px 24px}
+.alert{border-radius:10px;padding:10px 16px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px;font-size:12px;line-height:1.5}
+.alert.amber{background:#fffbeb;border:1px solid #fcd34d;color:#78350f}
+.alert.blue{background:#eff6ff;border:1px solid #93c5fd;color:#1e40af}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:12px 14px}
+.kpi-lbl{font-size:10px;color:#888;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.kpi-val{font-size:21px;font-weight:700;color:#1a1a1a;line-height:1}
+.kpi-sig{font-size:10px;margin-top:4px;color:#888;line-height:1.4}
+.up{color:#16a34a}.dn{color:#dc2626}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.card{background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:14px 16px}
+.card-full{background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:6px}
+.ct{font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.04em}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:10px;color:#888}
+.legend span{display:flex;align-items:center;gap:4px}
+.lsq{width:9px;height:9px;border-radius:2px;display:inline-block}
+.tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tbl th{padding:5px 8px;background:#fafaf8;color:#666;font-weight:600;border:1px solid #eee;text-align:right;white-space:nowrap}
+.tbl th:first-child,.tbl th:nth-child(2),.tbl th:nth-child(3){text-align:left}
+.tbl td{padding:5px 8px;border:1px solid #eee;text-align:right;color:#1a1a1a}
+.tbl td:first-child,.tbl td:nth-child(2),.tbl td:nth-child(3){text-align:left}
+.tbl tr:hover td{background:#fafaf8}
+.tbl .sub td{background:#dce6f1;font-weight:700}
+.tbl .tot td{background:#1f497d;color:#fff;font-weight:700}
+.htable{width:100%;border-collapse:collapse}
+.htable th{font-size:10px;font-weight:700;color:#888;padding:4px 6px;text-align:center;background:#fafaf8;border:1px solid #eee}
+.htable td.lbl{font-size:11px;color:#444;padding:4px 8px;background:#fafaf8;border:1px solid #eee;white-space:nowrap;font-weight:600}
+.htable td.cell{text-align:center;font-size:10px;font-weight:700;border:1px solid #eee;padding:4px 6px}
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:10px;margin-bottom:12px}
+.pcard{background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:12px 14px}
+.pname{font-size:12px;font-weight:700;color:#1a1a1a}
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+.ins-item{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid #f0f0ea;align-items:flex-start}
+.ins-item:last-child{border-bottom:none}
+.ins-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.ins-txt{font-size:12px;color:#555;line-height:1.55}
+.tipo-bar{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap;background:#fafaf8;border:1px solid #e5e5e0;border-radius:10px;padding:10px 14px}
+.tipo-bar label{font-size:11px;font-weight:700;color:#555;margin-right:4px}
+.tbtn{font-size:12px;padding:6px 16px;border-radius:20px;border:1px solid #e0e0da;color:#666;background:#fff;cursor:pointer;font-weight:500;transition:all .15s}
+.tbtn:hover{border-color:#999}
+.tbtn.all.on{background:#1a1a1a;border-color:#1a1a1a;color:#fff}
+.tbtn.enf.on{background:#3b82f6;border-color:#3b82f6;color:#fff}
+.tbtn.cong.on{background:#9333ea;border-color:#9333ea;color:#fff}
+.tipo-note{font-size:10px;color:#aaa;margin-left:4px}
+.sbtn{font-size:10px;padding:3px 9px;border-radius:20px;border:1px solid #e0e0da;color:#666;background:#fff;cursor:pointer}
+.sbtn.on{background:#1a1a1a;border-color:#1a1a1a;color:#fff}
+.sbtn.enf-tag{border-left:3px solid #3b82f6}
+.sbtn.cong-tag{border-left:3px solid #9333ea}
+.sbtn.both-tag{border-left:3px solid #d97706}
+.fbtn{font-size:11px;padding:4px 11px;border-radius:20px;border:1px solid #e0e0da;color:#666;background:#fff;cursor:pointer}
+.fbtn.on{background:#1a1a1a;border-color:#1a1a1a;color:#fff}
+.mat-chip{font-size:10px;padding:2px 8px;border-radius:20px;background:#fef3c7;color:#92400e;font-weight:600;display:inline-block;margin:2px}
+.band-kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.band-kpi{background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:10px 12px}
+.band-kpi-w{font-size:10px;font-weight:700;color:#92400e;margin-bottom:4px;text-transform:uppercase}
+.band-kpi-p{font-size:18px;font-weight:700;color:#78350f}
+.band-kpi-c{font-size:11px;color:#92400e;margin-top:3px}
+.band-kpi-cl{font-size:10px;color:#b45309;margin-top:2px}
+.band-kpi.nd{background:#fafaf8;border-color:#e5e5e0}
+.band-kpi.nd .band-kpi-p{color:#bbb;font-size:14px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div>
+    <h1><i class="ti ti-chart-bar" aria-hidden="true" style="font-size:15px;vertical-align:-2px;margin-right:6px"></i>Dashboard Precio vs Volumen — W21 a W29</h1>
+    <p>Piso Vacío $11.000 desde W23 · Enfriado (C) / Congelado (F) calculado por semana · Banderita 4C · W21–W29</p>
+  </div>
+  <div class="nav-pills">
+    <button class="pill" onclick="sv('resumen')">Resumen</button>
+    <button class="pill" onclick="sv('heatmap')">Mapa de calor</button>
+    <button class="pill" onclick="sv('productos')">Por producto</button>
+    <button class="pill on" onclick="sv('tendencias')">Tendencias</button>
+    <button class="pill" onclick="sv('elasticidad')">Elasticidad</button>
+    <button class="pill band" onclick="sv('banderita')">🥩 Banderita 4C</button>
+    <button class="pill" onclick="sv('stock')" style="background:#059669;border-color:#059669;color:#fff">📦 Stock W27–W30</button>
+    
+  </div>
+</div>
+
+<div class="content">
+  <div class="alert amber">
+    <i class="ti ti-alert-triangle" aria-hidden="true" style="font-size:15px;flex-shrink:0;margin-top:1px"></i>
+    <span><strong>Piso Vacío:</strong> $13.000 → <strong>$11.000</strong> desde W23 &nbsp;|&nbsp; <strong>Enfriado</strong> = códigos C &nbsp;|&nbsp; <strong>Congelado</strong> = códigos F &nbsp;|&nbsp; El filtro se calcula semana a semana según los materiales con ventas reales.</span>
+  </div>
+  <div class="kpi-grid" id="kpi-grid"></div>
+
+  <div id="v-resumen" style="display:none">
+    <div class="g2">
+      <div class="card">
+        <div class="ch"><span class="ct">Precio vs piso — productos clave</span>
+          <div class="legend">
+            <span><span class="lsq" style="background:#3b82f6"></span>W21</span><span><span class="lsq" style="background:#16a34a"></span>W22</span><span><span class="lsq" style="background:#d97706"></span>W23</span><span><span class="lsq" style="background:#9333ea"></span>W24</span><span><span class="lsq" style="background:#dc2626"></span>W25</span>
+            <span><span style="display:inline-block;width:14px;border-top:2px dashed #aaa;vertical-align:middle"></span>Piso</span>
+          </div>
+        </div>
+        <div style="position:relative;height:250px"><canvas id="c1">.</canvas></div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct">Cajas vendidas — productos clave</span></div>
+        <div style="position:relative;height:250px"><canvas id="c2">.</canvas></div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="ch"><span class="ct">Total cajas por semana</span></div>
+        <div style="position:relative;height:190px"><canvas id="c3">.</canvas></div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct">Hallazgos clave</span></div>
+        <div id="insights"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="v-heatmap" style="display:none">
+    <div class="card-full">
+      <div class="ch"><span class="ct">% desviación vs piso — todos los productos</span>
+        <div style="display:flex;gap:8px;font-size:10px;flex-wrap:wrap">
+          <span><span style="display:inline-block;width:11px;height:11px;border-radius:2px;background:#dcfce7"></span><span style="color:#15803d">≥+5%</span></span>
+          <span><span style="display:inline-block;width:11px;height:11px;border-radius:2px;background:#bbf7d0"></span><span style="color:#166534">0–5%</span></span>
+          <span><span style="display:inline-block;width:11px;height:11px;border-radius:2px;background:#fef3c7"></span><span style="color:#92400e">-5–0%</span></span>
+          <span><span style="display:inline-block;width:11px;height:11px;border-radius:2px;background:#fee2e2"></span><span style="color:#991b1b">&lt;-5%</span></span>
+        </div>
+      </div>
+      <div style="overflow-x:auto"><table class="htable" id="htbl"></table></div>
+    </div>
+  </div>
+
+  <div id="v-productos" style="display:none">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+      <span style="font-size:11px;font-weight:600;color:#555">Filtrar:</span>
+      <button class="fbtn on" onclick="fp('all')">Todos</button>
+      <button class="fbtn" onclick="fp('dn')">↓precio ↓cajas</button>
+      <button class="fbtn" onclick="fp('up')">↓precio ↑cajas</button>
+      <button class="fbtn" onclick="fp('stable')">Precio estable ↑cajas</button>
+    </div>
+    <div class="prod-grid" id="pgrid"></div>
+  </div>
+
+  <div id="v-tendencias">
+    <div class="tipo-bar">
+      <label>Ver por tipo:</label>
+      <button class="tbtn all on" onclick="setTipo('all')">🔘 Todos</button>
+      <button class="tbtn enf" onclick="setTipo('enf')">❄️ Enfriado (código C)</button>
+      <button class="tbtn cong" onclick="setTipo('cong')">🧊 Congelado (código F)</button>
+      <span class="tipo-note">El filtro muestra productos que tuvieron ventas del tipo seleccionado en W25. Un producto puede tener ambos tipos.</span>
+    </div>
+    <div class="card-full" style="margin-bottom:10px">
+      <div class="ch"><span class="ct">Seleccionar productos</span>
+        <div class="legend" style="font-size:10px">
+          <span><span style="display:inline-block;width:3px;height:14px;background:#3b82f6;border-radius:2px"></span>solo ENF</span>
+          <span><span style="display:inline-block;width:3px;height:14px;background:#9333ea;border-radius:2px"></span>solo CONG</span>
+          <span><span style="display:inline-block;width:3px;height:14px;background:#d97706;border-radius:2px"></span>ambos</span>
+        </div>
+      </div>
+      <div id="psel" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="ch"><span class="ct">Evolución precio (punteado = piso)</span></div>
+        <div style="position:relative;height:230px"><canvas id="c4">.</canvas></div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct">Evolución cajas</span></div>
+        <div style="position:relative;height:230px"><canvas id="c5">.</canvas></div>
+      </div>
+    </div>
+    <div class="card-full">
+      <div class="ch">
+        <span class="ct">Eje doble precio + cajas — <span id="dlbl" style="color:#3b82f6;font-size:12px"></span></span>
+        <div class="legend"><span><span class="lsq" style="background:#3b82f6"></span>Cajas</span><span><span style="display:inline-block;width:14px;height:2px;background:#dc2626;vertical-align:middle"></span>Precio</span><span><span style="display:inline-block;width:14px;border-top:2px dashed #aaa;vertical-align:middle"></span>Piso</span></div>
+      </div>
+      <div style="position:relative;height:190px"><canvas id="c6">.</canvas></div>
+    </div>
+  </div>
+
+  <div id="v-elasticidad" style="display:none">
+    <div class="g2">
+      <div class="card">
+        <div class="ch"><span class="ct">Δ precio vs Δ cajas — W21→W25</span>
+          <div class="legend"><span><span class="lsq" style="background:#16a34a"></span>Δ Precio</span><span><span class="lsq" style="background:#3b82f6"></span>Δ Cajas</span></div>
+        </div>
+        <div style="position:relative;height:310px"><canvas id="c7">.</canvas></div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct">Clasificación por comportamiento</span></div>
+        <div id="clist"></div>
+      </div>
+    </div>
+    <div class="card-full">
+      <div class="ch"><span class="ct">Dispersión precio vs cajas — tamaño = Kg</span><div class="legend" id="sleg"></div></div>
+      <div style="position:relative;height:270px"><canvas id="c8">.</canvas></div>
+    </div>
+  </div>
+
+  <div id="v-banderita" style="display:none">
+    <div class="alert blue">
+      <i class="ti ti-info-circle" aria-hidden="true" style="font-size:15px;flex-shrink:0;margin-top:1px"></i>
+      <div><strong>Materiales Banderita 4C:</strong>&nbsp;
+        <span class="mat-chip">CD163110</span><span class="mat-chip">CD163111</span><span class="mat-chip">FD163116</span><span class="mat-chip">FD163117</span><span class="mat-chip">FD163119</span><span class="mat-chip">FD163121</span><span class="mat-chip">FD163122</span><span class="mat-chip">FD163124</span>
+      </div>
+    </div>
+    <div class="band-kpi-grid" id="band-kpi"></div>
+    <div class="g2">
+      <div class="card"><div class="ch"><span class="ct">Cajas por código de material (apiladas)</span></div><div style="position:relative;height:220px"><canvas id="cb1">.</canvas></div></div>
+      <div class="card"><div class="ch"><span class="ct">Precio promedio por código</span></div><div style="position:relative;height:220px"><canvas id="cb2">.</canvas></div></div>
+    </div>
+    <div class="card-full">
+      <div class="ch"><span class="ct">Cajas por cliente</span>
+        <div class="legend"><span><span class="lsq" style="background:#3b82f6"></span>W21</span><span><span class="lsq" style="background:#16a34a"></span>W22</span><span><span class="lsq" style="background:#d97706"></span>W23</span><span><span class="lsq" style="background:#9333ea"></span>W24</span><span><span class="lsq" style="background:#dc2626"></span>W25</span></div>
+      </div>
+      <div style="position:relative;height:200px"><canvas id="cb3">.</canvas></div>
+    </div>
+    <div class="card-full"><div class="ch"><span class="ct">Detalle completo</span></div><div style="overflow-x:auto"><table class="tbl" id="band-tbl"></table></div></div>
+  </div>
+  <!-- STOCK -->
+  <div id="v-stock" style="display:none">
+    <div class="alert amber" style="background:#f0fdf4;border:1px solid #86efac;color:#166534">
+      <i class="ti ti-package" aria-hidden="true" style="font-size:15px;flex-shrink:0;margin-top:1px"></i>
+      <span><strong>Stock inicio de semana — solo APTAS.</strong> W27 a W30 · ❄️ ENF = código C · 🧊 CONG = código F</span>
+    </div>
+    <div class="kpi-grid" id="stock-kpi" style="margin-bottom:12px"></div>
+    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+      <button class="fbtn on" onclick="setStockView('tabla')">📋 Tabla</button>
+      <button class="fbtn" onclick="setStockView('evolucion')">📈 Evolución</button>
+      <button class="fbtn" onclick="setStockView('delta')">⚖️ W29→W30</button>
+    </div>
+    <div id="sv-tabla">
+      <div class="card-full">
+        <div class="ch">
+          <span class="ct">Cajas APTO por genérico y tipo — W27 a W30</span>
+          <div class="legend">
+            <span><span class="lsq" style="background:#eff6ff;border:1px solid #93c5fd"></span>❄️ ENF</span>
+            <span><span class="lsq" style="background:#faf5ff;border:1px solid #c4b5fd"></span>🧊 CONG</span>
+          </div>
+        </div>
+        <div style="overflow-x:auto"><table class="tbl" id="stock-tbl" style="font-size:11px"></table></div>
+      </div>
+    </div>
+    <div id="sv-evolucion" style="display:none">
+      <div class="g2">
+        <div class="card">
+          <div class="ch"><span class="ct">❄️ Enfriado por genérico W27→W30</span>
+            <div class="legend"><span><span class="lsq" style="background:#3b82f6"></span>W27</span><span><span class="lsq" style="background:#16a34a"></span>W28</span><span><span class="lsq" style="background:#d97706"></span>W29</span><span><span class="lsq" style="background:#9333ea"></span>W30</span></div>
+          </div>
+          <div style="position:relative;height:320px"><canvas id="cs-enf">.</canvas></div>
+        </div>
+        <div class="card">
+          <div class="ch"><span class="ct">🧊 Congelado por genérico W27→W30</span>
+            <div class="legend"><span><span class="lsq" style="background:#3b82f6"></span>W27</span><span><span class="lsq" style="background:#16a34a"></span>W28</span><span><span class="lsq" style="background:#d97706"></span>W29</span><span><span class="lsq" style="background:#9333ea"></span>W30</span></div>
+          </div>
+          <div style="position:relative;height:320px"><canvas id="cs-cong">.</canvas></div>
+        </div>
+      </div>
+    </div>
+    <div id="sv-delta" style="display:none">
+      <div class="g2">
+        <div class="card">
+          <div class="ch"><span class="ct">Variación W29→W30 por genérico</span></div>
+          <div style="position:relative;height:340px"><canvas id="cs-delta">.</canvas></div>
+        </div>
+        <div class="card">
+          <div class="ch"><span class="ct">Stock W30 — ENF vs CONG</span></div>
+          <div style="position:relative;height:340px"><canvas id="cs-w30">.</canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const PISO_VACIO={"W21":13000,"W22":13000,"W23":11000,"W24":11000,"W25":11000,"W26":11000,"W27":11000,"W28":11000,"W29":11000};
+const PISO={"ASADO CV SM":12500,"ASADO SV SM":9500,"VACIO":null,"RUEDA C/C":8200,"RUEDA S/C":7500,"NALGA C/T":11500,"NALGA S/T":11500,"TAPA NALGA":8300,"COLITA":13500,"BOLA LOMO":10000,"CUADRADA":10000,"PECETO":11500,"MATAMBRE":8000,"MOLLEJA":16000,"AGUJA":null,"TORTUGUITA":null,"SEBO":1640,"SHORT RIBS 7C":null,"BIFE VACIO":null,"BIFE A/ANGOSTO":null,"LOMO":null,"ENTRAÑA":null,"CAJA CAMPO":null};
+
+// W21: 3031=143cj $11.380 | 3012=sin datos
+// W22: 3031=395cj $11.063 | 3012=159cj $10.340
+// W23: 3031=207cj $11.000 | 3012=sin datos
+// W24: 3031=502cj $11.088 | 3012=95cj $10.000
+// W25: 3031=542cj+3004=10cj → CV ponderado | 3012=sin datos
+const D={"W21":{"ASADO CV SM":{"p":11380,"kg":1906.4,"c":143,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"ASADO SV SM":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"_PLACEHOLDER_CV_SM_":{"p":11380,"kg":1906.4,"c":143,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"VACIO":{"p":13009,"kg":17609.4,"c":1070,"enf_p":13114,"enf_c":745,"enf_kg":12151.2,"cong_p":12774,"cong_c":325,"cong_kg":5458.2},"RUEDA C/C":{"p":8200,"kg":26822.2,"c":730,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"RUEDA S/C":{"p":7500,"kg":2357.2,"c":65,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"NALGA C/T":{"p":10808,"kg":7838.3,"c":408,"enf_p":12500,"enf_c":25,"enf_kg":499.7,"cong_p":10693,"cong_c":383,"cong_kg":7338.6},"NALGA S/T":{"p":11186,"kg":6621.9,"c":326,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":11186,"cong_c":326,"cong_kg":6621.9},"TAPA NALGA":{"p":7714,"kg":9637.2,"c":493,"enf_p":8524,"enf_c":63,"enf_kg":1205.4,"cong_p":7599,"cong_c":430,"cong_kg":8431.8},"COLITA":{"p":12188,"kg":2994.8,"c":166,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":12188,"cong_c":166,"cong_kg":2994.8},"BOLA LOMO":{"p":9964,"kg":5603.4,"c":270,"enf_p":11299,"enf_c":101,"enf_kg":2132.0,"cong_p":9145,"cong_c":169,"cong_kg":3471.3},"CUADRADA":{"p":11187,"kg":2088.8,"c":113,"enf_p":11300,"enf_c":93,"enf_kg":1792.4,"cong_p":10500,"cong_c":20,"cong_kg":296.4},"PECETO":{"p":13955,"kg":12.5,"c":1,"enf_p":14000,"enf_c":1,"enf_kg":12.5,"cong_p":null,"cong_c":0,"cong_kg":0},"MATAMBRE":{"p":8512,"kg":3123.2,"c":160,"enf_p":8512,"enf_c":160,"enf_kg":3123.2,"cong_p":null,"cong_c":0,"cong_kg":0},"MOLLEJA":{"p":15149,"kg":784.0,"c":32,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":15148,"cong_c":32,"cong_kg":784.0},"AGUJA":{"p":9201,"kg":90.1,"c":5,"enf_p":9200,"enf_c":5,"enf_kg":90.1,"cong_p":null,"cong_c":0,"cong_kg":0},"TORTUGUITA":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"SEBO":{"p":1989,"kg":201660,"c":6,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"SHORT RIBS 7C":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"BIFE VACIO":{"p":18000,"kg":96.5,"c":5,"enf_p":18000,"enf_c":5,"enf_kg":96.5,"cong_p":null,"cong_c":0,"cong_kg":0},"BIFE A/ANGOSTO":{"p":18006,"kg":93.5,"c":7,"enf_p":18000,"enf_c":1,"enf_kg":12.6,"cong_p":18000,"cong_c":6,"cong_kg":80.9},"LOMO":{"p":21483,"kg":85.9,"c":5,"enf_p":21493,"enf_c":5,"enf_kg":85.9,"cong_p":null,"cong_c":0,"cong_kg":0},"ENTRAÑA":{"p":16973,"kg":18.8,"c":1,"enf_p":17000,"enf_c":1,"enf_kg":18.8,"cong_p":null,"cong_c":0,"cong_kg":0},"CAJA CAMPO":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0}},"W22":{"ASADO CV SM":{"p":11063,"kg":5599.8,"c":395,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"ASADO SV SM":{"p":10340,"kg":2718.2,"c":159,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"VACIO":{"p":12203,"kg":30849.4,"c":1866,"enf_p":12355,"enf_c":1445,"enf_kg":24149.5,"cong_p":11654,"cong_c":421,"cong_kg":6699.9},"RUEDA C/C":{"p":8200,"kg":28827.8,"c":779,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"RUEDA S/C":{"p":7500,"kg":1321.3,"c":40,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"NALGA C/T":{"p":11031,"kg":12320.5,"c":646,"enf_p":11933,"enf_c":191,"enf_kg":3624.5,"cong_p":10656,"cong_c":455,"cong_kg":8696.0},"NALGA S/T":{"p":11785,"kg":6989.1,"c":360,"enf_p":12368,"enf_c":40,"enf_kg":747.3,"cong_p":11715,"cong_c":320,"cong_kg":6241.8},"TAPA NALGA":{"p":8125,"kg":11299.2,"c":577,"enf_p":9328,"enf_c":177,"enf_kg":3307.7,"cong_p":7628,"cong_c":400,"cong_kg":7991.5},"COLITA":{"p":13312,"kg":2819.3,"c":158,"enf_p":12031,"enf_c":11,"enf_kg":147.4,"cong_p":13383,"cong_c":147,"cong_kg":2671.9},"BOLA LOMO":{"p":10464,"kg":4080.3,"c":214,"enf_p":10984,"enf_c":14,"enf_kg":285.9,"cong_p":10425,"cong_c":200,"cong_kg":3794.4},"CUADRADA":{"p":10649,"kg":1224.0,"c":70,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":10648,"cong_c":70,"cong_kg":1224.0},"PECETO":{"p":13148,"kg":178.5,"c":13,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":13147,"cong_c":13,"cong_kg":178.5},"MATAMBRE":{"p":8560,"kg":3487.6,"c":184,"enf_p":8560,"enf_c":184,"enf_kg":3487.6,"cong_p":null,"cong_c":0,"cong_kg":0},"MOLLEJA":{"p":16000,"kg":481.1,"c":20,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":16000,"cong_c":20,"cong_kg":481.1},"AGUJA":{"p":9411,"kg":235.7,"c":14,"enf_p":9200,"enf_c":4,"enf_kg":69.6,"cong_p":9500,"cong_c":10,"cong_kg":166.1},"TORTUGUITA":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"SEBO":{"p":1930,"kg":132400,"c":5,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"SHORT RIBS 7C":{"p":14033,"kg":399.6,"c":31,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":14031,"cong_c":31,"cong_kg":399.6},"BIFE VACIO":{"p":14117,"kg":1010.9,"c":54,"enf_p":14116,"enf_c":54,"enf_kg":1010.9,"cong_p":null,"cong_c":0,"cong_kg":0},"BIFE A/ANGOSTO":{"p":19445,"kg":140.3,"c":7,"enf_p":19000,"enf_c":4,"enf_kg":77.5,"cong_p":20000,"cong_c":3,"cong_kg":62.8},"LOMO":{"p":19989,"kg":36.1,"c":2,"enf_p":20000,"enf_c":2,"enf_kg":36.1,"cong_p":null,"cong_c":0,"cong_kg":0},"ENTRAÑA":{"p":8999,"kg":448.1,"c":25,"enf_p":9000,"enf_c":25,"enf_kg":448.1,"cong_p":null,"cong_c":0,"cong_kg":0},"CAJA CAMPO":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0}},"W23":{"ASADO CV SM":{"p":11000,"kg":2959.4,"c":207,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"ASADO SV SM":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"VACIO":{"p":12361,"kg":4913.1,"c":305,"enf_p":12361,"enf_c":305,"enf_kg":4913.1,"cong_p":null,"cong_c":0,"cong_kg":0},"RUEDA C/C":{"p":8200,"kg":30654.3,"c":835,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"RUEDA S/C":{"p":7243,"kg":11907.2,"c":350,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"NALGA C/T":{"p":10200,"kg":888.1,"c":50,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":10200,"cong_c":50,"cong_kg":888.1},"NALGA S/T":{"p":13000,"kg":1902.8,"c":100,"enf_p":13000,"enf_c":100,"enf_kg":1902.8,"cong_p":null,"cong_c":0,"cong_kg":0},"TAPA NALGA":{"p":7274,"kg":10196.7,"c":513,"enf_p":8528,"enf_c":53,"enf_kg":1044.9,"cong_p":7130,"cong_c":460,"cong_kg":9151.8},"COLITA":{"p":13927,"kg":224.1,"c":13,"enf_p":13000,"enf_c":1,"enf_kg":16.5,"cong_p":14000,"cong_c":12,"cong_kg":207.6},"BOLA LOMO":{"p":10015,"kg":266.2,"c":15,"enf_p":9200,"enf_c":5,"enf_kg":99.0,"cong_p":10500,"cong_c":10,"cong_kg":167.2},"CUADRADA":{"p":10894,"kg":912.8,"c":61,"enf_p":10500,"enf_c":11,"enf_kg":194.6,"cong_p":11000,"cong_c":50,"cong_kg":718.2},"PECETO":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"MATAMBRE":{"p":8595,"kg":3460.1,"c":175,"enf_p":8595,"enf_c":175,"enf_kg":3460.1,"cong_p":null,"cong_c":0,"cong_kg":0},"MOLLEJA":{"p":15997,"kg":214.1,"c":10,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":16000,"cong_c":10,"cong_kg":214.1},"AGUJA":{"p":9201,"kg":94.6,"c":6,"enf_p":9200,"enf_c":6,"enf_kg":94.6,"cong_p":null,"cong_c":0,"cong_kg":0},"TORTUGUITA":{"p":7000,"kg":379.5,"c":30,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":7000,"cong_c":30,"cong_kg":379.5},"SEBO":{"p":1923,"kg":109500,"c":4,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"SHORT RIBS 7C":{"p":15001,"kg":123.6,"c":10,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":15000,"cong_c":10,"cong_kg":123.6},"BIFE VACIO":{"p":16002,"kg":261.5,"c":15,"enf_p":16000,"enf_c":15,"enf_kg":261.5,"cong_p":null,"cong_c":0,"cong_kg":0},"BIFE A/ANGOSTO":{"p":19988,"kg":34.5,"c":2,"enf_p":20000,"enf_c":2,"enf_kg":34.5,"cong_p":null,"cong_c":0,"cong_kg":0},"LOMO":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"ENTRAÑA":{"p":10008,"kg":39.1,"c":2,"enf_p":10000,"enf_c":2,"enf_kg":39.1,"cong_p":null,"cong_c":0,"cong_kg":0},"CAJA CAMPO":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0}},"W24":{"ASADO CV SM":{"p":11088,"kg":6814.4,"c":502,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"ASADO SV SM":{"p":10000,"kg":1575.3,"c":95,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"VACIO":{"p":11545,"kg":7694.2,"c":465,"enf_p":11827,"enf_c":180,"enf_kg":2961.8,"cong_p":11368,"cong_c":285,"cong_kg":4732.4},"RUEDA C/C":{"p":8100,"kg":27840.5,"c":738,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"RUEDA S/C":{"p":7124,"kg":4440.2,"c":130,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"NALGA C/T":{"p":10448,"kg":6364.4,"c":352,"enf_p":11568,"enf_c":52,"enf_kg":948.1,"cong_p":10252,"cong_c":300,"cong_kg":5416.2},"NALGA S/T":{"p":11000,"kg":2012.1,"c":100,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":11000,"cong_c":100,"cong_kg":2012.1},"TAPA NALGA":{"p":8255,"kg":3669.8,"c":185,"enf_p":8255,"enf_c":185,"enf_kg":3669.8,"cong_p":null,"cong_c":0,"cong_kg":0},"COLITA":{"p":13008,"kg":67.5,"c":4,"enf_p":13000,"enf_c":4,"enf_kg":67.5,"cong_p":null,"cong_c":0,"cong_kg":0},"BOLA LOMO":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"CUADRADA":{"p":10506,"kg":18.8,"c":1,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":10500,"cong_c":1,"cong_kg":18.8},"PECETO":{"p":11664,"kg":158.6,"c":11,"enf_p":13500,"enf_c":3,"enf_kg":42.3,"cong_p":11000,"cong_c":8,"cong_kg":116.2},"MATAMBRE":{"p":8449,"kg":4214.5,"c":210,"enf_p":8449,"enf_c":210,"enf_kg":4214.5,"cong_p":null,"cong_c":0,"cong_kg":0},"MOLLEJA":{"p":15356,"kg":1652.9,"c":72,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":15356,"cong_c":72,"cong_kg":1652.9},"AGUJA":{"p":9654,"kg":1068.3,"c":54,"enf_p":9200,"enf_c":4,"enf_kg":61.5,"cong_p":9682,"cong_c":50,"cong_kg":1006.9},"TORTUGUITA":{"p":7001,"kg":277.8,"c":18,"enf_p":7000,"enf_c":2,"enf_kg":45.3,"cong_p":7000,"cong_c":16,"cong_kg":232.6},"SEBO":{"p":1900,"kg":114080,"c":3,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"SHORT RIBS 7C":{"p":14560,"kg":1116.2,"c":80,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":14560,"cong_c":80,"cong_kg":1116.2},"BIFE VACIO":{"p":15292,"kg":858.1,"c":45,"enf_p":15291,"enf_c":45,"enf_kg":858.1,"cong_p":null,"cong_c":0,"cong_kg":0},"BIFE A/ANGOSTO":{"p":19995,"kg":159.0,"c":8,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":20000,"cong_c":8,"cong_kg":159.0},"LOMO":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"ENTRAÑA":{"p":20000,"kg":122.2,"c":6,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":20000,"cong_c":6,"cong_kg":122.2},"CAJA CAMPO":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0}},"W25":{"ASADO CV SM":{"p":11089,"kg":7927.1,"c":552,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"ASADO SV SM":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"VACIO":{"p":11511,"kg":20169.4,"c":1211,"enf_p":11742,"enf_c":761,"enf_kg":12748.7,"cong_p":11114,"cong_c":450,"cong_kg":7420.7},"RUEDA C/C":{"p":8100,"kg":27200.1,"c":730,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"RUEDA S/C":{"p":7139,"kg":3621.6,"c":105,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"NALGA C/T":{"p":11599,"kg":5946.3,"c":321,"enf_p":11575,"enf_c":311,"enf_kg":5788.9,"cong_p":12500,"cong_c":10,"cong_kg":157.4},"NALGA S/T":{"p":12373,"kg":5930.7,"c":295,"enf_p":12373,"enf_c":295,"enf_kg":5930.7,"cong_p":null,"cong_c":0,"cong_kg":0},"TAPA NALGA":{"p":8230,"kg":8231.6,"c":420,"enf_p":8359,"enf_c":270,"enf_kg":5264.7,"cong_p":8000,"cong_c":150,"cong_kg":2966.9},"COLITA":{"p":13167,"kg":227.1,"c":14,"enf_p":13166,"enf_c":14,"enf_kg":227.1,"cong_p":null,"cong_c":0,"cong_kg":0},"BOLA LOMO":{"p":10672,"kg":2917.4,"c":150,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":10672,"cong_c":150,"cong_kg":2917.4},"CUADRADA":{"p":10043,"kg":304.5,"c":20,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":10044,"cong_c":20,"cong_kg":304.5},"PECETO":{"p":12039,"kg":331.0,"c":22,"enf_p":12481,"enf_c":2,"enf_kg":27.7,"cong_p":12000,"cong_c":20,"cong_kg":303.2},"MATAMBRE":{"p":8449,"kg":3025.9,"c":161,"enf_p":8448,"enf_c":161,"enf_kg":3025.9,"cong_p":null,"cong_c":0,"cong_kg":0},"MOLLEJA":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"AGUJA":{"p":9057,"kg":243.0,"c":14,"enf_p":8000,"enf_c":5,"enf_kg":71.9,"cong_p":9500,"cong_c":9,"cong_kg":171.2},"TORTUGUITA":{"p":7002,"kg":81.7,"c":7,"enf_p":7000,"enf_c":7,"enf_kg":81.7,"cong_p":null,"cong_c":0,"cong_kg":0},"SEBO":{"p":1900,"kg":188420,"c":6,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"SHORT RIBS 7C":{"p":13670,"kg":1979.2,"c":140,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":13670,"cong_c":140,"cong_kg":1979.2},"BIFE VACIO":{"p":12972,"kg":1434.5,"c":71,"enf_p":12972,"enf_c":71,"enf_kg":1434.5,"cong_p":null,"cong_c":0,"cong_kg":0},"BIFE A/ANGOSTO":{"p":20091,"kg":1137.2,"c":65,"enf_p":19050,"enf_c":4,"enf_kg":66.6,"cong_p":20156,"cong_c":61,"cong_kg":1070.6},"LOMO":{"p":21479,"kg":127.6,"c":8,"enf_p":22000,"enf_c":6,"enf_kg":94.0,"cong_p":20000,"cong_c":2,"cong_kg":33.6},"ENTRAÑA":{"p":17999,"kg":251.4,"c":15,"enf_p":18000,"enf_c":15,"enf_kg":251.4,"cong_p":null,"cong_c":0,"cong_kg":0},"CAJA CAMPO":{"p":5500,"kg":1590.2,"c":87,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":5500,"cong_c":87,"cong_kg":1590.2}},"W26":{"ASADO CV SM":{"p":11000,"kg":3518.4,"c":258,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"ASADO SV SM":{"p":10000,"kg":764.3,"c":95,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"VACIO":{"p":11923,"kg":25086.3,"c":1453,"enf_p":12423,"enf_c":863,"enf_kg":15263.7,"cong_p":11147,"cong_c":590,"cong_kg":9822.6},"RUEDA C/C":{"p":8100,"kg":28772.7,"c":783,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"RUEDA S/C":{"p":7163,"kg":5004.1,"c":145,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"NALGA C/T":{"p":10093,"kg":14269.0,"c":761,"enf_p":12000,"enf_c":6,"enf_kg":103.1,"cong_p":10079,"cong_c":755,"cong_kg":14165.9},"NALGA S/T":{"p":11855,"kg":4181.2,"c":220,"enf_p":12554,"enf_c":120,"enf_kg":2302.2,"cong_p":11000,"cong_c":100,"cong_kg":1879.0},"TAPA NALGA":{"p":8011,"kg":11897.1,"c":602,"enf_p":8185,"enf_c":302,"enf_kg":6003.3,"cong_p":7835,"cong_c":300,"cong_kg":5893.8},"COLITA":{"p":12342,"kg":171.4,"c":9,"enf_p":13000,"enf_c":6,"enf_kg":114.8,"cong_p":11000,"cong_c":3,"cong_kg":56.6},"BOLA LOMO":{"p":9817,"kg":6255.2,"c":339,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":9817,"cong_c":339,"cong_kg":6255.2},"CUADRADA":{"p":11500,"kg":96.7,"c":5,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":11500,"cong_c":5,"cong_kg":96.7},"PECETO":{"p":12760,"kg":255.8,"c":16,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":12758,"cong_c":16,"cong_kg":255.8},"MATAMBRE":{"p":8501,"kg":3245.8,"c":174,"enf_p":8501,"enf_c":174,"enf_kg":3245.8,"cong_p":null,"cong_c":0,"cong_kg":0},"MOLLEJA":{"p":14994,"kg":104.5,"c":5,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":15000,"cong_c":5,"cong_kg":104.5},"AGUJA":{"p":9008,"kg":47.0,"c":3,"enf_p":9000,"enf_c":3,"enf_kg":47.0,"cong_p":null,"cong_c":0,"cong_kg":0},"TORTUGUITA":{"p":6997,"kg":54.5,"c":5,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":7000,"cong_c":5,"cong_kg":54.5},"SEBO":{"p":1863,"kg":252560.0,"c":7,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"SHORT RIBS 7C":{"p":14650,"kg":482.0,"c":34,"enf_p":16000,"enf_c":7,"enf_kg":87.5,"cong_p":14353,"cong_c":27,"cong_kg":394.5},"BIFE VACIO":{"p":13996,"kg":731.7,"c":40,"enf_p":13995,"enf_c":40,"enf_kg":731.7,"cong_p":null,"cong_c":0,"cong_kg":0},"BIFE A/ANGOSTO":{"p":17301,"kg":127.7,"c":7,"enf_p":17301,"enf_c":7,"enf_kg":127.7,"cong_p":null,"cong_c":0,"cong_kg":0},"LOMO":{"p":22014,"kg":32.2,"c":3,"enf_p":22000,"enf_c":3,"enf_kg":32.2,"cong_p":null,"cong_c":0,"cong_kg":0},"ENTRAÑA":{"p":19983,"kg":11.7,"c":1,"enf_p":20000,"enf_c":1,"enf_kg":11.7,"cong_p":null,"cong_c":0,"cong_kg":0},"CAJA CAMPO":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0}},"W27":{"ASADO CV SM":{"p":11118,"kg":2896.6,"c":209,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"ASADO SV SM":{"p":10000,"kg":802.2,"c":99,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"VACIO":{"p":12154,"kg":22122.1,"c":1225,"enf_p":12424,"enf_c":977,"enf_kg":17927.1,"cong_p":11000,"cong_c":248,"cong_kg":4195.0},"RUEDA C/C":{"p":8100,"kg":21468.4,"c":568,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"RUEDA S/C":{"p":7166,"kg":4055.7,"c":115,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"NALGA C/T":{"p":11370,"kg":3500.8,"c":193,"enf_p":11362,"enf_c":68,"enf_kg":1135.3,"cong_p":11374,"cong_c":125,"cong_kg":2365.4},"NALGA S/T":{"p":13390,"kg":247.4,"c":13,"enf_p":13000,"enf_c":3,"enf_kg":55.1,"cong_p":13500,"cong_c":10,"cong_kg":192.3},"TAPA NALGA":{"p":8203,"kg":7464.5,"c":385,"enf_p":8133,"enf_c":210,"enf_kg":4064.4,"cong_p":8287,"cong_c":175,"cong_kg":3400.1},"COLITA":{"p":10992,"kg":937.2,"c":55,"enf_p":11500,"enf_c":11,"enf_kg":154.1,"cong_p":10893,"cong_c":44,"cong_kg":783.1},"BOLA LOMO":{"p":9431,"kg":2928.5,"c":163,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":9431,"cong_c":163,"cong_kg":2928.5},"CUADRADA":{"p":11001,"kg":541.4,"c":33,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":11000,"cong_c":33,"cong_kg":541.4},"PECETO":{"p":12563,"kg":195.9,"c":14,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":12560,"cong_c":14,"cong_kg":195.9},"MATAMBRE":{"p":8300,"kg":3063.1,"c":160,"enf_p":8300,"enf_c":160,"enf_kg":3063.1,"cong_p":null,"cong_c":0,"cong_kg":0},"MOLLEJA":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"AGUJA":{"p":9332,"kg":198.0,"c":11,"enf_p":9200,"enf_c":6,"enf_kg":110.8,"cong_p":9500,"cong_c":5,"cong_kg":87.2},"TORTUGUITA":{"p":6980,"kg":14.3,"c":1,"enf_p":7000,"enf_c":1,"enf_kg":14.3,"cong_p":null,"cong_c":0,"cong_kg":0},"SEBO":{"p":1776,"kg":263960.0,"c":8,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"SHORT RIBS 7C":{"p":12872,"kg":2236.8,"c":172,"enf_p":15000,"enf_c":2,"enf_kg":15.6,"cong_p":12858,"cong_c":170,"cong_kg":2221.1},"BIFE VACIO":{"p":15184,"kg":442.1,"c":25,"enf_p":15184,"enf_c":25,"enf_kg":442.1,"cong_p":null,"cong_c":0,"cong_kg":0},"BIFE A/ANGOSTO":{"p":18731,"kg":419.8,"c":23,"enf_p":17000,"enf_c":3,"enf_kg":56.8,"cong_p":19000,"cong_c":20,"cong_kg":363.0},"LOMO":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"ENTRAÑA":{"p":17982,"kg":20.3,"c":1,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":18000,"cong_c":1,"cong_kg":20.3},"CAJA CAMPO":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0}},"W28":{"ASADO CV SM":{"p":11000,"kg":5832.6,"c":412,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"ASADO SV SM":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"VACIO":{"p":11722,"kg":11950.2,"c":736,"enf_p":11722,"enf_c":736,"enf_kg":11950.2,"cong_p":null,"cong_c":0,"cong_kg":0},"RUEDA C/C":{"p":8100,"kg":23746.1,"c":661,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"RUEDA S/C":{"p":7200,"kg":5684.6,"c":165,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"NALGA C/T":{"p":11326,"kg":928.4,"c":50,"enf_p":10885,"enf_c":25,"enf_kg":478.5,"cong_p":11795,"cong_c":25,"cong_kg":449.8},"NALGA S/T":{"p":12181,"kg":492.2,"c":23,"enf_p":12181,"enf_c":23,"enf_kg":492.2,"cong_p":null,"cong_c":0,"cong_kg":0},"TAPA NALGA":{"p":8300,"kg":6773.1,"c":344,"enf_p":8300,"enf_c":344,"enf_kg":6773.1,"cong_p":null,"cong_c":0,"cong_kg":0},"COLITA":{"p":12710,"kg":280.4,"c":20,"enf_p":13026,"enf_c":10,"enf_kg":111.5,"cong_p":12500,"cong_c":10,"cong_kg":168.9},"BOLA LOMO":{"p":10003,"kg":161.2,"c":10,"enf_p":10000,"enf_c":5,"enf_kg":70.9,"cong_p":10000,"cong_c":5,"cong_kg":90.3},"CUADRADA":{"p":10502,"kg":133.3,"c":10,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":10500,"cong_c":10,"cong_kg":133.3},"PECETO":{"p":13009,"kg":55.9,"c":4,"enf_p":13000,"enf_c":2,"enf_kg":23.6,"cong_p":13000,"cong_c":2,"cong_kg":32.3},"MATAMBRE":{"p":8300,"kg":2866.0,"c":150,"enf_p":8300,"enf_c":150,"enf_kg":2866.0,"cong_p":null,"cong_c":0,"cong_kg":0},"MOLLEJA":{"p":16000,"kg":482.4,"c":20,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":16000,"cong_c":20,"cong_kg":482.4},"AGUJA":{"p":9259,"kg":245.8,"c":14,"enf_p":9107,"enf_c":9,"enf_kg":151.5,"cong_p":9500,"cong_c":5,"cong_kg":94.3},"TORTUGUITA":{"p":6999,"kg":159.7,"c":9,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":7000,"cong_c":9,"cong_kg":159.7},"SEBO":{"p":1730,"kg":119240.0,"c":4,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"SHORT RIBS 7C":{"p":13602,"kg":1614.1,"c":119,"enf_p":13400,"enf_c":98,"enf_kg":1337.1,"cong_p":14576,"cong_c":21,"cong_kg":277.1},"BIFE VACIO":{"p":15909,"kg":598.0,"c":37,"enf_p":15908,"enf_c":37,"enf_kg":598.0,"cong_p":null,"cong_c":0,"cong_kg":0},"BIFE A/ANGOSTO":{"p":20211,"kg":344.2,"c":24,"enf_p":18091,"enf_c":9,"enf_kg":103.7,"cong_p":21128,"cong_c":15,"cong_kg":240.4},"LOMO":{"p":21000,"kg":21.1,"c":3,"enf_p":21000,"enf_c":3,"enf_kg":21.1,"cong_p":null,"cong_c":0,"cong_kg":0},"ENTRAÑA":{"p":18000,"kg":201.3,"c":12,"enf_p":18000,"enf_c":12,"enf_kg":201.3,"cong_p":null,"cong_c":0,"cong_kg":0},"CAJA CAMPO":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0}},"W29":{"ASADO CV SM":{"p":11082,"kg":5389.4,"c":389,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"ASADO SV SM":{"p":10000,"kg":752.6,"c":92,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"VACIO":{"p":11372,"kg":24621.7,"c":1540,"enf_p":11485,"enf_c":1130,"enf_kg":17881.5,"cong_p":11073,"cong_c":410,"cong_kg":6740.2},"RUEDA C/C":{"p":8100,"kg":24110.8,"c":630,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"RUEDA S/C":{"p":7200,"kg":9868.1,"c":274,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"NALGA C/T":{"p":10588,"kg":6662.7,"c":372,"enf_p":10956,"enf_c":132,"enf_kg":2224.4,"cong_p":10403,"cong_c":240,"cong_kg":4438.3},"NALGA S/T":{"p":12389,"kg":1593.2,"c":85,"enf_p":12000,"enf_c":50,"enf_kg":938.3,"cong_p":12946,"cong_c":35,"cong_kg":654.9},"TAPA NALGA":{"p":8900,"kg":1735.0,"c":89,"enf_p":8900,"enf_c":89,"enf_kg":1735.0,"cong_p":null,"cong_c":0,"cong_kg":0},"COLITA":{"p":12822,"kg":1590.8,"c":90,"enf_p":12711,"enf_c":57,"enf_kg":976.8,"cong_p":13000,"cong_c":33,"cong_kg":614.0},"BOLA LOMO":{"p":10461,"kg":2441.2,"c":129,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":10461,"cong_c":129,"cong_kg":2441.2},"CUADRADA":{"p":10428,"kg":203.9,"c":12,"enf_p":10000,"enf_c":6,"enf_kg":97.0,"cong_p":10812,"cong_c":6,"cong_kg":107.0},"PECETO":{"p":11735,"kg":203.7,"c":16,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":11734,"cong_c":16,"cong_kg":203.7},"MATAMBRE":{"p":8571,"kg":4613.4,"c":259,"enf_p":8571,"enf_c":259,"enf_kg":4613.4,"cong_p":null,"cong_c":0,"cong_kg":0},"MOLLEJA":{"p":15255,"kg":980.4,"c":45,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":15255,"cong_c":45,"cong_kg":980.4},"AGUJA":{"p":9480,"kg":18.9,"c":1,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":9500,"cong_c":1,"cong_kg":18.9},"TORTUGUITA":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"SEBO":{"p":1663,"kg":194140.0,"c":6,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"SHORT RIBS 7C":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0},"BIFE VACIO":{"p":13429,"kg":403.0,"c":23,"enf_p":13429,"enf_c":23,"enf_kg":403.0,"cong_p":null,"cong_c":0,"cong_kg":0},"BIFE A/ANGOSTO":{"p":19885,"kg":275.5,"c":17,"enf_p":20000,"enf_c":2,"enf_kg":33.4,"cong_p":19869,"cong_c":15,"cong_kg":242.1},"LOMO":{"p":22674,"kg":228.0,"c":17,"enf_p":21000,"enf_c":2,"enf_kg":37.0,"cong_p":23000,"cong_c":15,"cong_kg":190.9},"ENTRAÑA":{"p":13678,"kg":50.2,"c":3,"enf_p":16062,"enf_c":2,"enf_kg":30.5,"cong_p":10000,"cong_c":1,"cong_kg":19.7},"CAJA CAMPO":{"p":null,"kg":0,"c":0,"enf_p":null,"enf_c":0,"enf_kg":0,"cong_p":null,"cong_c":0,"cong_kg":0}}};
+
+const BAND={"W20":[],"W21":[],
+"W22":[
+  {mat:"FD163116",desc:"ASADO 4C BANDERITA (CONSUMO)",cliente:"DE LA COSTA PATAGONICA",cj:30,kg:493.49,imp:8389330,p:17000},
+  {mat:"FD163116",desc:"ASADO 4C BANDERITA (CONSUMO)",cliente:"DISTRIBUIDORA FERRARI",cj:1,kg:8.85,imp:159300,p:18000},
+  {mat:"FD163121",desc:"ASADO 4C BANDERITA (CONSUMO) M",cliente:"MADDIO JUAN JOSE",cj:4,kg:57.69,imp:1038420,p:18000}
+],
+"W23":[
+  {mat:"FD163121",desc:"ASADO 4C BANDERITA (CONSUMO) M",cliente:"MADDIO JUAN JOSE",cj:4,kg:63.76,imp:1147680,p:18000},
+  {mat:"FD163122",desc:"ASADO 4C (CONSUMO) MC",cliente:"ZONA AUSTRAL",cj:10,kg:134.10,imp:2145600,p:16000}
+],
+"W24":[
+  {mat:"FD163116",desc:"ASADO 4C BANDERITA (CONSUMO)",cliente:"V.B.S S.A.S.",cj:5,kg:93.98,imp:1550670,p:16500},
+  {mat:"FD163121",desc:"ASADO 4C BANDERITA (CONSUMO) M",cliente:"AGROPECUARIA CORDOBA SUR",cj:1,kg:14.88,imp:252960,p:17000}
+],
+"W25":[
+  {mat:"FD163116",desc:"ASADO 4C BANDERITA (CONSUMO)",cliente:"DISTRIBUIDORA FERRARI",cj:3,kg:44.87,imp:807660,p:18000},
+  {mat:"FD163119",desc:"ASADO 7C SHORT RIBS (CONSUMO) marcado",cliente:"CARNES TIERRA DEL FUEGO",cj:20,kg:270.45,imp:4056750,p:15000},
+  {mat:"FD163121",desc:"ASADO 4C BANDERITA (CONSUMO) M",cliente:"CARNES TIERRA DEL FUEGO",cj:11,kg:153.82,imp:2768760,p:18000},
+  {mat:"FD163122",desc:"ASADO 4C (CONSUMO) MC",cliente:"CARNES TIERRA DEL FUEGO",cj:49,kg:683.18,imp:10930880,p:16000},
+  {mat:"FD163122",desc:"ASADO 4C (CONSUMO) MC",cliente:"ZONA AUSTRAL",cj:25,kg:336.25,imp:5211875,p:15500},
+  {mat:"FD163124",desc:"ASADO 4C BANDERITA (CONSUMO) MC x2",cliente:"CARNES TIERRA DEL FUEGO",cj:30,kg:457.62,imp:8237160,p:18000}
+],"W26":[
+  {mat:"CD163111",desc:"ASADO 4C BANDERITA (CONSUMO)",cliente:"LEGO DE AZUL S.R.L.",cj:5,kg:91.92,imp:1562640,p:17000},
+  {mat:"CD163111",desc:"ASADO 4C BANDERITA (CONSUMO)",cliente:"MADDIO JUAN JOSE",cj:2,kg:30.69,imp:552420,p:18000},
+  {mat:"FD163116",desc:"ASADO 4C BANDERITA (CONSUMO)",cliente:"DISTRIBUIDORA FERRARI S.A.",cj:3,kg:45.48,imp:818640,p:18000},
+  {mat:"FD163121",desc:"ASADO 4C BANDERITA (CONSUMO) M",cliente:"FRIGORIFICOS DEL NORTE S.R.L.",cj:30,kg:457.51,imp:6862650,p:15000}
+],"W27":[{mat:"CD163111",desc:"ASADO 4C BANDERITA",cliente:"REALES AGRUPACION",cj:2,kg:36.28,imp:580480,p:16000},{mat:"FD163116",desc:"ASADO 4C BANDERITA",cliente:"FRIGORIFICOS DEL NORTE",cj:27,kg:453.0,imp:6795000,p:15000},{mat:"FD163119",desc:"ASADO 7C SHORT RIBS marcado",cliente:"DE LA COSTA PATAGONICA",cj:40,kg:557.72,imp:7808080,p:14000},{mat:"FD163119",desc:"ASADO 7C SHORT RIBS marcado",cliente:"FRIGORIFICO GILIO",cj:20,kg:269.55,imp:2965050,p:11000},{mat:"FD163121",desc:"ASADO 4C BANDERITA M",cliente:"FRIGORIFICO GILIO",cj:60,kg:950.63,imp:15210080,p:16000},{mat:"FD163122",desc:"ASADO 4C MC",cliente:"FRIGORIFICO GILIO",cj:10,kg:137.33,imp:1510630,p:11000},{mat:"FD163124",desc:"ASADO 4C BANDERITA MC x2",cliente:"DE LA COSTA PATAGONICA",cj:35,kg:557.68,imp:9480560,p:17000},{mat:"FD163124",desc:"ASADO 4C BANDERITA MC x2",cliente:"FRIGORIFICO GILIO",cj:9,kg:145.46,imp:2327360,p:16000},{mat:"FD163124",desc:"ASADO 4C BANDERITA MC x2",cliente:"V.B.S S.A.S.",cj:30,kg:492.04,imp:8118660,p:16500}],"W28":[{mat:"CD163111",desc:"ASADO 4C BANDERITA",cliente:"ECMAN SUR S.A.",cj:1,kg:22.17,imp:354720,p:16000},{mat:"CD163111",desc:"ASADO 4C BANDERITA",cliente:"LEGO DE AZUL S.R.L.",cj:4,kg:68.63,imp:1166710,p:17000},{mat:"FD163119",desc:"ASADO 7C SHORT RIBS marcado",cliente:"RAPOSSI FELIPE ANTONIO",cj:1,kg:14.05,imp:224800,p:16000}],"W29":[{mat:"CD163111",desc:"ASADO 4C BANDERITA",cliente:"LEGO DE AZUL S.R.L.",cj:2,kg:23.95,imp:407150,p:17000},{mat:"FD163116",desc:"ASADO 4C BANDERITA",cliente:"FRIGORIFICO GILIO S.A.",cj:31,kg:499.98,imp:7999680,p:16000},{mat:"FD163121",desc:"ASADO 4C BANDERITA M",cliente:"FRIGORIFICO GILIO S.A.",cj:11,kg:154.49,imp:2471840,p:16000},{mat:"FD163122",desc:"ASADO 4C MC",cliente:"ZONA AUSTRAL S.R.L.",cj:30,kg:393.32,imp:6096460,p:15500},{mat:"FD163124",desc:"ASADO 4C BANDERITA MC x2",cliente:"FRIGORIFICO GILIO S.A.",cj:28,kg:411.39,imp:6582240,p:16000},{mat:"FD163124",desc:"ASADO 4C BANDERITA MC x2",cliente:"INDUSTRIALIZAR S.R.L.",cj:20,kg:296.11,imp:5329980,p:18000}]};
+
+const PRODS=["ASADO CV SM","ASADO SV SM","VACIO","RUEDA C/C","RUEDA S/C","NALGA C/T","NALGA S/T","TAPA NALGA","COLITA","BOLA LOMO","CUADRADA","PECETO","MATAMBRE","MOLLEJA","AGUJA","TORTUGUITA","SEBO","SHORT RIBS 7C","BIFE VACIO","BIFE A/ANGOSTO","LOMO","ENTRAÑA","CAJA CAMPO"];
+const WW=["W21","W22","W23","W24","W25","W26","W27","W28","W29"];
+const WC=["#3b82f6","#16a34a","#d97706","#9333ea","#dc2626","#0891b2","#b45309","#db2777"];
+const PC=["#3b82f6","#16a34a","#d97706","#9333ea","#dc2626","#7c3aed","#059669","#b45309","#db2777","#0891b2","#65a30d","#f43f5e","#84cc16","#f97316","#06b6d4","#8b5cf6"];
+const MAIN=["ASADO CV SM","ASADO SV SM","VACIO","RUEDA C/C","NALGA C/T","TAPA NALGA","MATAMBRE","NALGA S/T","BOLA LOMO"];
+let SP=["VACIO","NALGA C/T","TAPA NALGA","MATAMBRE"];
+let charts={};let cf='all';let currentTipo='all';
+
+function pisoFor(p,w){if(p==="VACIO")return PISO_VACIO[w]||null;return PISO[p]||null;}
+function pctW(p,w){const d=D[w][p];const pi=pisoFor(p,w);if(!d||!d.p||!pi)return null;return Math.round((d.p-pi)/pi*100);}
+function pct(a,b){if(!a||!b)return null;return Math.round((a-b)/b*100);}
+function mk(id,cfg){if(charts[id])charts[id].destroy();charts[id]=new Chart(document.getElementById(id),cfg);}
+
+// Filtro dinámico: un prod pasa el filtro "enf" si en W25 tuvo enf_c>0
+function passFilter(p,tipo){
+  if(tipo==='all') return true;
+  const d=D.W25[p];
+  if(tipo==='enf') return d&&d.enf_c>0;
+  if(tipo==='cong') return d&&d.cong_c>0;
+  return true;
+}
+// Tag visual para cada prod en W25
+function tipoTag(p){
+  const d=D.W25[p];
+  if(!d) return '';
+  const hasE=d.enf_c>0, hasC=d.cong_c>0;
+  if(hasE&&hasC) return 'both-tag';
+  if(hasE) return 'enf-tag';
+  if(hasC) return 'cong-tag';
+  return '';
+}
+
+function buildKPI(){
+  const ok=PRODS.filter(p=>D.W21[p].c>0&&D.W29[p].c>0&&D.W21[p].p&&D.W29[p].p);
+  const dn=ok.filter(p=>pct(D.W29[p].p,D.W21[p].p)<0&&pct(D.W29[p].c,D.W21[p].c)<-10);
+  const up=ok.filter(p=>pct(D.W29[p].p,D.W21[p].p)<-2&&pct(D.W29[p].c,D.W21[p].c)>5);
+  const cj21=PRODS.reduce((a,p)=>a+D.W21[p].c,0);
+  const cj29=PRODS.reduce((a,p)=>a+D.W29[p].c,0);
+  const dc=pct(cj29,cj21);
+  const vp=pctW("VACIO","W29");
+  document.getElementById('kpi-grid').innerHTML=`
+    <div class="kpi"><div class="kpi-lbl">Precio↓ y cajas↓ W21→W25</div><div class="kpi-val dn">${dn.length}</div><div class="kpi-sig dn">${dn.slice(0,3).join(' · ')}${dn.length>3?'…':''}</div></div>
+    <div class="kpi"><div class="kpi-lbl">Precio↓ → cajas↑</div><div class="kpi-val up">${up.length}</div><div class="kpi-sig up">${up.length?up.join(' · '):'ninguno'}</div></div>
+    <div class="kpi"><div class="kpi-lbl">Vacío W25 vs piso $11.000</div><div class="kpi-val ${vp>=0?'up':'dn'}">${vp>0?'+':''}${vp}%</div><div class="kpi-sig">$11.923 · ${vp>=0?'sobre objetivo':'bajo objetivo'}</div></div>
+    <div class="kpi"><div class="kpi-lbl">Total cajas W21→W25</div><div class="kpi-val ${dc>=0?'up':'dn'}">${dc>0?'+':''}${dc}%</div><div class="kpi-sig">${cj21.toLocaleString()} → ${cj29.toLocaleString()}</div></div>`;
+}
+
+function buildResumen(){
+  mk('c1',{type:'bar',data:{labels:MAIN,datasets:[...WW.map((w,i)=>({label:w,data:MAIN.map(p=>D[w][p].p),backgroundColor:WC[i]+'99',borderColor:WC[i],borderWidth:1})),{label:'Piso',data:MAIN.map(p=>pisoFor(p,'W25')),type:'line',borderColor:'#aaa',borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false,tension:0,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:c=>c.dataset.label+': $'+c.parsed.y?.toLocaleString()}}},scales:{x:{ticks:{font:{size:8},maxRotation:40}},y:{ticks:{callback:v=>'$'+v.toLocaleString(),font:{size:8}}}}}});
+  mk('c2',{type:'bar',data:{labels:MAIN,datasets:WW.map((w,i)=>({label:w,data:MAIN.map(p=>D[w][p].c),backgroundColor:WC[i]+'99',borderColor:WC[i],borderWidth:1}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:c=>c.dataset.label+': '+c.parsed.y?.toLocaleString()+' cj'}}},scales:{x:{ticks:{font:{size:8},maxRotation:40}},y:{ticks:{font:{size:8},callback:v=>v.toLocaleString()}}}}});
+  const tots=WW.map(w=>PRODS.reduce((a,p)=>a+D[w][p].c,0));
+  mk('c3',{type:'bar',data:{labels:WW,datasets:[{label:'Cajas',data:tots,backgroundColor:WC.map(c=>c+'bb'),borderColor:WC,borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Total: '+c.parsed.y?.toLocaleString()+' cj'}}},scales:{x:{ticks:{font:{size:12}}},y:{ticks:{callback:v=>v.toLocaleString(),font:{size:9}}}}}});
+  document.getElementById('insights').innerHTML=[
+    {col:'#16a34a',t:'Vacío W26: $11.923 (+8.4% vs piso $11.000). Tres semanas consecutivas sobre objetivo.'},
+    {col:'#dc2626',t:'Asado CV SM (piso $12.500): bajo objetivo todas las semanas. W26 a $11.000 = -12.0%. Asado SV SM (piso $9.500): W26 $10.000 = +5.3%.'},
+    {col:'#dc2626',t:'Nalga C/T W26: $10.093 = -12.2% bajo piso $11.500. Caída fuerte respecto a W25.'},
+    {col:'#d97706',t:'Banderita 4C W26: 40 cajas. Frigo del Norte (30 cj $15.000) + Ferrari (3 cj $18.000) + Lego+Maddio (7 cj $17-18K). Ver 🥩.'},
+    {col:'#d97706',t:'Tapa Nalga W26: 602 cj con mix ENF/CONG equilibrado ($8.185 ENF / $7.835 CONG). Precio ponderado $8.011 = -3.5% vs piso.'},
+  ].map(i=>`<div class="ins-item"><span class="ins-dot" style="background:${i.col}"></span><span class="ins-txt">${i.t}</span></div>`).join('');
+}
+
+function buildHeat(){
+  let html=`<thead><tr><th style="text-align:left">Producto</th><th>Piso</th>${WW.map(w=>`<th>${w}</th>`).join('')}</tr></thead><tbody>`;
+  PRODS.forEach(p=>{
+    const pd=p==="VACIO"?'$11.000 <small>(↓W23)</small>':(PISO[p]?'$'+PISO[p].toLocaleString():'—');
+    html+=`<tr><td class="lbl">${p}</td><td class="lbl" style="color:#888;font-size:10px">${pd}</td>`;
+    WW.forEach(w=>{
+      const d=D[w][p];const v=pctW(p,w);
+      const enfStr=d.enf_c>0?`<small style="color:#3b82f6">❄${d.enf_c}cj</small>`:'';
+      const congStr=d.cong_c>0?`<small style="color:#9333ea">🧊${d.cong_c}cj</small>`:'';
+      if(!d.p||!d.c){html+=`<td class="cell" style="background:#f5f5f0;color:#ccc">—</td>`;return;}
+      let bg,cl;
+      if(v===null){html+=`<td class="cell" style="background:#f9f9f7;color:#999">$${(d.p/1000).toFixed(0)}K<br>${enfStr}${congStr}</td>`;return;}
+      if(v>=5){bg='#dcfce7';cl='#15803d';}else if(v>=0){bg='#bbf7d0';cl='#166534';}
+      else if(v>=-5){bg='#fef3c7';cl='#92400e';}else{bg='#fee2e2';cl='#991b1b';}
+      html+=`<td class="cell" style="background:${bg};color:${cl}">${v>0?'+':''}${v}%<br>${enfStr}${congStr}</td>`;
+    });
+    html+='</tr>';
+  });
+  document.getElementById('htbl').innerHTML=html+'</tbody>';
+}
+
+function buildPGrid(f){
+  const active=PRODS.filter(p=>WW.some(w=>D[w][p].c>0));
+  const filt=active.filter(p=>{
+    const p0=D.W21[p].p||D.W22[p].p,pN=D.W29[p].p||D.W28[p].p;
+    const c0=D.W21[p].c||D.W22[p].c,cN=D.W29[p].c||D.W28[p].c;
+    const dp=pct(pN,p0),dc=pct(cN,c0);
+    if(f==='all')return true;
+    if(f==='dn')return dp!==null&&dp<0&&dc!==null&&dc<-10;
+    if(f==='up')return dp!==null&&dp<-2&&dc!==null&&dc>5;
+    if(f==='stable')return dp!==null&&Math.abs(dp)<=2&&dc!==null&&dc>5;
+    return true;
+  });
+  const g=document.getElementById('pgrid');g.innerHTML='';
+  filt.forEach(p=>{
+    const prices=WW.map(w=>D[w][p].p),cajas=WW.map(w=>D[w][p].c),pisos=WW.map(w=>pisoFor(p,w));
+    const p0=prices.find(x=>x),pN=[...prices].reverse().find(x=>x);
+    const c0=cajas.find(x=>x>0),cN=[...cajas].reverse().find(x=>x>0);
+    const dp=pct(pN,p0),dc=pct(cN,c0);
+    let badge='',bg='',cl='';
+    if(dp!==null&&dc!==null){
+      if(dp<-2&&dc<-10){badge='↓P ↓cj';bg='#fee2e2';cl='#b91c1c';}
+      else if(dp<-2&&dc>5){badge='↓P ↑cj';bg='#dcfce7';cl='#15803d';}
+      else if(Math.abs(dp)<=2&&dc>5){badge='=P ↑cj';bg='#dbeafe';cl='#1d4ed8';}
+      else{badge='sin cambio';bg='#f1f1eb';cl='#555';}
+    }
+    const d25=D.W25[p];
+    const tipoInfo=d25?(d25.enf_c>0&&d25.cong_c>0?'❄️🧊 ENF+CONG':d25.enf_c>0?'❄️ Enfriado':d25.cong_c>0?'🧊 Congelado':''):'';
+    const div=document.createElement('div');div.className='pcard';
+    const cid='pc'+p.replace(/[^a-z0-9]/gi,'_');
+    div.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span class="pname">${p}</span><span class="badge" style="background:${bg};color:${cl}">${badge}</span></div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:10px;color:#aaa">${PISO[p]?'Piso: $'+(p==="VACIO"?'11.000':PISO[p].toLocaleString()):''}</span><span style="font-size:10px;color:#888">${tipoInfo}</span></div><div style="position:relative;height:105px"><canvas id="${cid}">.</canvas></div>`;
+    g.appendChild(div);
+    requestAnimationFrame(()=>{
+      const el=document.getElementById(cid);if(!el)return;
+      mk(cid,{data:{labels:WW,datasets:[{type:'bar',label:'Cajas',data:cajas,backgroundColor:'#3b82f633',borderColor:'#3b82f6',borderWidth:1,yAxisID:'y2'},{type:'line',label:'Precio',data:prices,borderColor:'#dc2626',borderWidth:2,pointRadius:3,fill:false,tension:0.3,yAxisID:'y1',spanGaps:true},{type:'line',label:'Piso',data:pisos,borderColor:'#aaa',borderDash:[4,3],borderWidth:1,pointRadius:0,fill:false,yAxisID:'y1',spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},scales:{x:{ticks:{font:{size:8}}},y1:{type:'linear',position:'left',ticks:{callback:v=>'$'+v.toLocaleString(),font:{size:7}}},y2:{type:'linear',position:'right',ticks:{callback:v=>v,font:{size:7}},grid:{drawOnChartArea:false}}}}});
+    });
+  });
+}
+
+function setTipo(tipo){
+  currentTipo=tipo;
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
+  document.querySelector('.tbtn.'+tipo).classList.add('on');
+  // Filtrar SP a productos que pasen el filtro
+  const available=PRODS.filter(p=>WW.some(w=>D[w][p].c>0)&&passFilter(p,tipo));
+  SP=SP.filter(p=>available.includes(p));
+  if(!SP.length&&available.length)SP=[available[0]];
+  buildPSel();buildTrends();
+}
+
+function buildPSel(){
+  const el=document.getElementById('psel');el.innerHTML='';
+  const available=PRODS.filter(p=>WW.some(w=>D[w][p].c>0)&&passFilter(p,currentTipo));
+  available.forEach(p=>{
+    const tag=tipoTag(p);
+    const b=document.createElement('button');
+    b.className='sbtn '+(SP.includes(p)?'on':'')+' '+tag;
+    b.textContent=p;b.style.fontSize='10px';
+    b.onclick=()=>{SP.includes(p)?(SP.length>1&&(SP=SP.filter(x=>x!==p))):SP.push(p);buildPSel();buildTrends();};
+    el.appendChild(b);
+  });
+}
+
+function getPrecio(p,w){
+  if(currentTipo==='enf') return D[w][p].enf_c>0?D[w][p].enf_p:null;
+  if(currentTipo==='cong') return D[w][p].cong_c>0?D[w][p].cong_p:null;
+  return D[w][p].p;
+}
+function getCajas(p,w){
+  if(currentTipo==='enf') return D[w][p].enf_c||0;
+  if(currentTipo==='cong') return D[w][p].cong_c||0;
+  return D[w][p].c;
+}
+function buildTrends(){
+  const cols=PC;
+  const tipoLabel=currentTipo==='enf'?' (❄️ENF)':currentTipo==='cong'?' (🧊CONG)':'';
+  mk('c4',{type:'line',data:{labels:WW,datasets:[
+    ...SP.map((p,i)=>({label:p+tipoLabel,data:WW.map(w=>getPrecio(p,w)),borderColor:cols[i%cols.length],backgroundColor:cols[i%cols.length]+'22',borderWidth:2.5,pointRadius:5,fill:false,tension:0.3,spanGaps:true})),
+    ...SP.map((p,i)=>({label:'_p'+p,data:WW.map(w=>pisoFor(p,w)),borderColor:cols[i%cols.length]+'55',borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false,spanGaps:true}))
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{filter:c=>!c.dataset.label.startsWith('_'),callbacks:{label:c=>c.dataset.label+': $'+c.parsed.y?.toLocaleString()}}},scales:{x:{ticks:{font:{size:11}}},y:{ticks:{callback:v=>'$'+v.toLocaleString(),font:{size:10}}}}}});
+  mk('c5',{type:'line',data:{labels:WW,datasets:SP.map((p,i)=>({
+    label:p+tipoLabel,
+    data:WW.map(w=>getCajas(p,w)||null),
+    borderColor:cols[i%cols.length],backgroundColor:cols[i%cols.length]+'22',borderWidth:2.5,pointRadius:5,fill:false,tension:0.3,spanGaps:true
+  }))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y?.toLocaleString()+' cj'}}},scales:{x:{ticks:{font:{size:11}}},y:{ticks:{callback:v=>v.toLocaleString(),font:{size:10}}}}}});
+  const fp=SP[0];
+  document.getElementById('dlbl').textContent=fp+tipoLabel;
+  mk('c6',{data:{labels:WW,datasets:[
+    {type:'bar',label:'Cajas'+tipoLabel,data:WW.map(w=>getCajas(fp,w)||null),backgroundColor:'#3b82f633',borderColor:'#3b82f6',borderWidth:1,yAxisID:'y2'},
+    {type:'line',label:'Precio'+tipoLabel,data:WW.map(w=>getPrecio(fp,w)),borderColor:'#dc2626',borderWidth:2.5,pointRadius:5,fill:false,tension:0.3,yAxisID:'y1',spanGaps:true},
+    {type:'line',label:'Piso',data:WW.map(w=>pisoFor(fp,w)),borderColor:'#aaa',borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false,yAxisID:'y1',spanGaps:true}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:c=>`${c.dataset.label}: ${c.dataset.label.startsWith('Cajas')?c.parsed.y?.toLocaleString()+' cj':'$'+c.parsed.y?.toLocaleString()}`}}},scales:{x:{ticks:{font:{size:11}}},y1:{type:'linear',position:'left',ticks:{callback:v=>'$'+v.toLocaleString(),font:{size:10}}},y2:{type:'linear',position:'right',ticks:{callback:v=>v.toLocaleString(),font:{size:10}},grid:{drawOnChartArea:false}}}}});
+}
+
+function buildElast(){
+  const ok=PRODS.filter(p=>{const h0=(D.W21[p].c>0&&D.W21[p].p)||(D.W22[p].c>0&&D.W22[p].p);const hN=(D.W29[p].c>0&&D.W29[p].p)||(D.W28[p].c>0&&D.W28[p].p);return h0&&hN;});
+  const dp=ok.map(p=>{const a=D.W21[p].p||D.W22[p].p,b=D.W29[p].p||D.W28[p].p;return pct(b,a);});
+  const dc=ok.map(p=>{const a=D.W21[p].c||D.W22[p].c,b=D.W29[p].c||D.W28[p].c;return pct(b,a);});
+  mk('c7',{type:'bar',data:{labels:ok,datasets:[{label:'Δ Precio %',data:dp,backgroundColor:dp.map(v=>v>=0?'#16a34a55':'#dc262655'),borderColor:dp.map(v=>v>=0?'#16a34a':'#dc2626'),borderWidth:1.5},{label:'Δ Cajas %',data:dc,backgroundColor:dc.map(v=>v>=0?'#3b82f655':'#d9770655'),borderColor:dc.map(v=>v>=0?'#3b82f6':'#d97706'),borderWidth:1.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y>0?'+':''}${c.parsed.y}%`}}},scales:{x:{ticks:{font:{size:8},maxRotation:55}},y:{ticks:{callback:v=>(v>0?'+':'')+v+'%',font:{size:9}},grid:{color:c=>c.tick.value===0?'#888':'#f5f5f0'}}}}});
+  const cats=[{l:'↓ precio y ↓ cajas',d:'Baja no rescató demanda',col:'#dc2626',bg:'#fee2e2',ps:ok.filter((_,i)=>dp[i]<-2&&dc[i]<-10)},{l:'↓ precio y ↑ cajas',d:'Elasticidad positiva',col:'#16a34a',bg:'#dcfce7',ps:ok.filter((_,i)=>dp[i]<-2&&dc[i]>5)},{l:'Precio estable y ↑ cajas',d:'Demanda firme',col:'#2563eb',bg:'#dbeafe',ps:ok.filter((_,i)=>Math.abs(dp[i])<=2&&dc[i]>5)},{l:'Precio estable o ↑',d:'Mantiene posición',col:'#d97706',bg:'#fef3c7',ps:ok.filter((_,i)=>dp[i]>2)}];
+  document.getElementById('clist').innerHTML=cats.filter(t=>t.ps.length).map(t=>`<div style="padding:9px 0;border-bottom:1px solid #f0f0ea"><div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="width:9px;height:9px;border-radius:50%;background:${t.col};flex-shrink:0"></span><span style="font-size:12px;font-weight:700;color:#1a1a1a">${t.l}</span></div><div style="font-size:10px;color:#888;margin-bottom:4px">${t.d}</div><div style="display:flex;flex-wrap:wrap;gap:3px">${t.ps.map(p=>`<span style="font-size:10px;padding:2px 7px;border-radius:20px;background:${t.bg};color:${t.col};font-weight:600">${p}</span>`).join('')}</div></div>`).join('');
+  const active=PRODS.filter(p=>WW.some(w=>D[w][p].c>0));
+  document.getElementById('sleg').innerHTML=active.slice(0,10).map((p,i)=>`<span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:${PC[i%PC.length]};display:inline-block"></span><span style="font-size:10px">${p}</span></span>`).join('');
+  mk('c8',{type:'bubble',data:{datasets:active.map((p,i)=>({label:p,data:WW.map(w=>{const d=D[w][p];if(!d.p||!d.c)return null;return{x:d.p,y:d.c,r:Math.max(4,Math.min(26,Math.round(d.kg/800)))};}).filter(Boolean),backgroundColor:PC[i%PC.length]+'99',borderColor:PC[i%PC.length],borderWidth:1.5}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: $${c.parsed.x?.toLocaleString()} | ${c.parsed.y}cj`}}},scales:{x:{title:{display:true,text:'Precio $/kg',font:{size:10}},ticks:{callback:v=>'$'+v.toLocaleString(),font:{size:9}}},y:{title:{display:true,text:'Cajas',font:{size:10}},ticks:{callback:v=>v.toLocaleString(),font:{size:9}}}},layout:{padding:20}}});
+}
+
+function bandSummary(w){const rows=BAND[w];if(!rows||!rows.length)return null;const tK=rows.reduce((a,r)=>a+r.kg,0),tI=rows.reduce((a,r)=>a+r.imp,0),tC=rows.reduce((a,r)=>a+r.cj,0);return{p:Math.round(tI/tK),kg:Math.round(tK),c:tC,rows};}
+function buildBanderita(){
+  const WB=["W21","W22","W23","W24","W25","W26","W27","W28","W29"];
+  const WC5=["#3b82f6","#16a34a","#d97706","#9333ea","#dc2626","#0891b2"];
+
+  // All unique mats across all weeks in order
+  const MAT_ORDER=["CD163110","CD163111","FD163116","FD163117","FD163119","FD163121","FD163122","FD163124"];
+  const MAT_LABEL={
+    "CD163110":"CD163110 · ASADO 4C (CONSUMO)",
+    "CD163111":"CD163111 · ASADO 4C BANDERITA (CONSUMO)",
+    "FD163116":"FD163116 · ASADO 4C BANDERITA (CONSUMO)",
+    "FD163117":"FD163117 · ASADO 4C (CONSUMO)",
+    "FD163119":"FD163119 · ASADO 7C SHORT RIBS marcado",
+    "FD163121":"FD163121 · ASADO 4C BANDERITA M",
+    "FD163122":"FD163122 · ASADO 4C (CONSUMO) MC",
+    "FD163124":"FD163124 · ASADO 4C BANDERITA MC x2",
+  };
+  const MAT_COLOR={"CD163110":"#3b82f6","CD163111":"#16a34a","FD163116":"#d97706","FD163117":"#9333ea","FD163119":"#dc2626","FD163121":"#0891b2","FD163122":"#7c3aed","FD163124":"#059669"};
+
+  // Active mats = those with data in any week
+  const activeMats=MAT_ORDER.filter(m=>WB.some(w=>BAND[w].some(r=>r.mat===m)));
+
+  // ── KPI por semana (total) ────────────────────────────────────────────────
+  const kpiEl=document.getElementById('band-kpi');
+  kpiEl.innerHTML=WB.map(w=>{
+    const rows=BAND[w];
+    if(!rows||!rows.length)return`<div class="band-kpi nd"><div class="band-kpi-w">${w}</div><div class="band-kpi-p">Sin ventas</div><div class="band-kpi-c">—</div><div class="band-kpi-cl">—</div></div>`;
+    const tK=rows.reduce((a,r)=>a+r.kg,0),tI=rows.reduce((a,r)=>a+r.imp,0),tC=rows.reduce((a,r)=>a+r.cj,0);
+    const p=Math.round(tI/tK);
+    const cl=[...new Set(rows.map(r=>r.cliente.split(' ')[0]))].slice(0,3).join(' · ');
+    return`<div class="band-kpi"><div class="band-kpi-w">${w}</div><div class="band-kpi-p">$${p.toLocaleString()}</div><div class="band-kpi-c">${tC} cj · ${Math.round(tK)} Kg</div><div class="band-kpi-cl">${cl}</div></div>`;
+  }).join('');
+
+  // ── Gráfico cajas por código (barras apiladas por semana) ─────────────────
+  const cjBySemana=WB.map(w=>activeMats.map(m=>BAND[w].filter(r=>r.mat===m).reduce((a,r)=>a+r.cj,0)));
+  mk('cb1',{type:'bar',
+    data:{labels:WB,datasets:activeMats.map((m,i)=>({
+      label:m,
+      data:WB.map(w=>BAND[w].filter(r=>r.mat===m).reduce((a,r)=>a+r.cj,0)),
+      backgroundColor:MAT_COLOR[m]+'cc',
+      borderColor:MAT_COLOR[m],
+      borderWidth:1,
+    }))},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{font:{size:9},usePointStyle:true,pointStyle:'rect'}},
+        tooltip:{mode:'index',intersect:false,callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+' cj'}}},
+      scales:{x:{ticks:{font:{size:11}}},y:{stacked:true,ticks:{stepSize:10,font:{size:10}},title:{display:true,text:'Cajas',font:{size:10}}}}}
+  });
+
+  // ── Gráfico precio promedio por código ────────────────────────────────────
+  mk('cb2',{type:'line',
+    data:{labels:WB,datasets:activeMats.map((m,i)=>({
+      label:m,
+      data:WB.map(w=>{
+        const rows=BAND[w].filter(r=>r.mat===m);
+        if(!rows.length)return null;
+        const tK=rows.reduce((a,r)=>a+r.kg,0),tI=rows.reduce((a,r)=>a+r.imp,0);
+        return tK>0?Math.round(tI/tK):null;
+      }),
+      borderColor:MAT_COLOR[m],backgroundColor:MAT_COLOR[m]+'22',
+      borderWidth:2.5,pointRadius:5,fill:false,tension:0.2,spanGaps:true,
+    }))},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{font:{size:9},usePointStyle:true,pointStyle:'rect'}},
+        tooltip:{callbacks:{label:c=>c.dataset.label+': $'+c.parsed.y?.toLocaleString()}}},
+      scales:{x:{ticks:{font:{size:11}}},y:{min:13000,max:20000,ticks:{callback:v=>'$'+v.toLocaleString(),font:{size:10}}}}}
+  });
+
+  // ── Gráfico cajas por cliente por semana ──────────────────────────────────
+  const allCl=[...new Set(Object.values(BAND).flat().map(r=>r.cliente))];
+  mk('cb3',{type:'bar',data:{labels:allCl,datasets:WB.map((w,i)=>({
+    label:w,
+    data:allCl.map(cl=>BAND[w].filter(r=>r.cliente===cl).reduce((a,r)=>a+r.cj,0)),
+    backgroundColor:WC5[i]+'99',borderColor:WC5[i],borderWidth:1.5
+  }))},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+' cj'}}},
+    scales:{x:{ticks:{font:{size:9},maxRotation:30}},y:{beginAtZero:true,ticks:{stepSize:5,font:{size:10}}}}}
+  });
+
+  // ── Tabla detalle por semana / código / cliente ───────────────────────────
+  let html=`<thead><tr>
+    <th>Semana</th><th>Material</th><th>Descripción</th><th>Cliente</th>
+    <th style="text-align:right">Cajas</th><th style="text-align:right">Kg</th>
+    <th style="text-align:right">Importe</th><th style="text-align:right">Precio/kg</th>
+  </tr></thead><tbody>`;
+  let gC=0,gK=0,gI=0;
+  WB.forEach(w=>{
+    const rows=BAND[w];
+    if(!rows||!rows.length){html+=`<tr><td style="font-weight:700;color:#bbb">${w}</td><td colspan="7" style="color:#bbb;text-align:center">Sin ventas Banderita</td></tr>`;return;}
+    // Group by mat
+    const byMat={};
+    rows.forEach(r=>{byMat[r.mat]=byMat[r.mat]||[];byMat[r.mat].push(r);});
+    let firstW=true;
+    MAT_ORDER.filter(m=>byMat[m]).forEach(m=>{
+      const matRows=byMat[m];
+      let firstM=true;
+      matRows.forEach(r=>{
+        gC+=r.cj;gK+=r.kg;gI+=r.imp;
+        const col=MAT_COLOR[m]||'#888';
+        html+=`<tr>
+          <td style="font-weight:700">${firstW&&firstM?w:''}</td>
+          <td style="font-size:10px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${col};margin-right:4px"></span>${firstM?m:''}</td>
+          <td style="font-size:10px;color:#555">${firstM?r.desc:''}</td>
+          <td>${r.cliente}</td>
+          <td style="text-align:right">${r.cj}</td>
+          <td style="text-align:right">${r.kg.toFixed(2)}</td>
+          <td style="text-align:right">$${r.imp.toLocaleString()}</td>
+          <td style="text-align:right;font-weight:700;color:#16a34a">$${r.p.toLocaleString()}</td>
+        </tr>`;
+        firstW=false;firstM=false;
+      });
+      // Subtotal por material
+      const mc=matRows.reduce((a,r)=>a+r.cj,0),mk2=matRows.reduce((a,r)=>a+r.kg,0),mi=matRows.reduce((a,r)=>a+r.imp,0);
+      if(matRows.length>1){
+        html+=`<tr class="sub"><td></td><td>${m}</td><td colspan="2" style="font-size:10px">Subtotal</td>
+          <td style="text-align:right">${mc}</td><td style="text-align:right">${mk2.toFixed(2)}</td>
+          <td style="text-align:right">$${mi.toLocaleString()}</td>
+          <td style="text-align:right">$${Math.round(mi/mk2).toLocaleString()}</td></tr>`;
+      }
+    });
+    // Total semana
+    const wC=rows.reduce((a,r)=>a+r.cj,0),wK=rows.reduce((a,r)=>a+r.kg,0),wI=rows.reduce((a,r)=>a+r.imp,0);
+    html+=`<tr style="background:#f0f0ea"><td style="font-weight:700">${w} total</td><td colspan="3" style="font-weight:700">Total semana</td>
+      <td style="text-align:right;font-weight:700">${wC}</td><td style="text-align:right;font-weight:700">${wK.toFixed(2)}</td>
+      <td style="text-align:right;font-weight:700">$${wI.toLocaleString()}</td>
+      <td style="text-align:right;font-weight:700">$${Math.round(wI/wK).toLocaleString()}</td></tr>`;
+  });
+  html+=`<tr class="tot"><td colspan="4">TOTAL GENERAL</td>
+    <td style="text-align:right">${gC}</td><td style="text-align:right">${gK.toFixed(2)}</td>
+    <td style="text-align:right">$${gI.toLocaleString()}</td>
+    <td style="text-align:right">$${Math.round(gI/gK).toLocaleString()}</td></tr>`;
+  document.getElementById('band-tbl').innerHTML=html+'</tbody>';
+}
+
+
+
+
+// ── STOCK DATA ────────────────────────────────────────────────────────────
+const SWW = ["W27","W28","W29","W30"];
+const SWC = ["#3b82f6","#16a34a","#d97706","#9333ea"];
+const SROWS = [
+{"gen":"VACIO","tipo":"ENF","W27":1975,"W28":2112,"W29":2412,"W30":2461},
+{"gen":"VACIO","tipo":"CONG","W27":3084,"W28":2836,"W29":2836,"W30":2426},
+{"gen":"NALGA C/T","tipo":"ENF","W27":190,"W28":237,"W29":332,"W30":301},
+{"gen":"NALGA C/T","tipo":"CONG","W27":1419,"W28":1306,"W29":1281,"W30":1093},
+{"gen":"NALGA S/T","tipo":"ENF","W27":261,"W28":284,"W29":264,"W30":409},
+{"gen":"NALGA S/T","tipo":"CONG","W27":208,"W28":198,"W29":198,"W30":163},
+{"gen":"TAPA NALGA","tipo":"ENF","W27":313,"W28":484,"W29":140,"W30":143},
+{"gen":"TAPA NALGA","tipo":"CONG","W27":104,"W28":54,"W29":54,"W30":54},
+{"gen":"BOLA LOMO","tipo":"ENF","W27":5,"W28":6,"W29":3,"W30":4},
+{"gen":"BOLA LOMO","tipo":"CONG","W27":496,"W28":444,"W29":467,"W30":405},
+{"gen":"MATAMBRE","tipo":"ENF","W27":442,"W28":374,"W29":327,"W30":198},
+{"gen":"COLITA","tipo":"ENF","W27":18,"W28":11,"W29":52,"W30":44},
+{"gen":"COLITA","tipo":"CONG","W27":99,"W28":99,"W29":108,"W30":75},
+{"gen":"CUADRADA","tipo":"ENF","W27":5,"W28":6,"W29":9,"W30":4},
+{"gen":"CUADRADA","tipo":"CONG","W27":58,"W28":51,"W29":55,"W30":59},
+{"gen":"PECETO","tipo":"ENF","W27":3,"W28":4,"W29":3,"W30":4},
+{"gen":"PECETO","tipo":"CONG","W27":26,"W28":18,"W29":26,"W30":13},
+{"gen":"SHORT RIBS 7C","tipo":"ENF","W27":50,"W28":48,"W29":0,"W30":0},
+{"gen":"SHORT RIBS 7C","tipo":"CONG","W27":278,"W28":112,"W29":156,"W30":157},
+{"gen":"BANDERITA 4C","tipo":"ENF","W27":16,"W28":14,"W29":9,"W30":9},
+{"gen":"BANDERITA 4C","tipo":"CONG","W27":345,"W28":202,"W29":224,"W30":192},
+{"gen":"BIFE VACIO","tipo":"ENF","W27":63,"W28":61,"W29":39,"W30":27},
+{"gen":"BIFE A/ANGOSTO","tipo":"ENF","W27":12,"W28":11,"W29":5,"W30":6},
+{"gen":"BIFE A/ANGOSTO","tipo":"CONG","W27":96,"W28":89,"W29":77,"W30":65},
+{"gen":"LOMO","tipo":"ENF","W27":4,"W28":5,"W29":3,"W30":3},
+{"gen":"AGUJA","tipo":"ENF","W27":7,"W28":9,"W29":4,"W30":8},
+{"gen":"TORTUGUITA","tipo":"ENF","W27":1,"W28":1,"W29":2,"W30":2},
+{"gen":"TORTUGUITA","tipo":"CONG","W27":6,"W28":10,"W29":2,"W30":3},
+{"gen":"ENTRAÑA","tipo":"ENF","W27":1,"W28":2,"W29":2,"W30":1}
+];
+const SGENS=[...new Set(SROWS.map(r=>r.gen))];
+
+function sVal(gen,tipo,w){const r=SROWS.find(x=>x.gen===gen&&x.tipo===tipo);return r?r[w]:0;}
+function sTotal(gen,w){return (sVal(gen,'ENF',w)||0)+(sVal(gen,'CONG',w)||0);}
+
+let sView='tabla';
+function setStockView(v){
+  sView=v;
+  ['tabla','evolucion','delta'].forEach(x=>document.getElementById('sv-'+x).style.display=x===v?'':'none');
+  document.querySelectorAll('#v-stock .fbtn').forEach((b,i)=>b.classList.toggle('on',['tabla','evolucion','delta'][i]===v));
+  if(v==='evolucion') buildStockEvo();
+  if(v==='delta') buildStockDelta();
+}
+
+function buildStock(){
+  // KPIs
+  const totals=SWW.map(w=>SROWS.reduce((a,r)=>a+(r[w]||0),0));
+  document.getElementById('stock-kpi').innerHTML=SWW.map((w,i)=>{
+    const t=totals[i];
+    const enf=SROWS.filter(r=>r.tipo==='ENF').reduce((a,r)=>a+(r[w]||0),0);
+    const cong=SROWS.filter(r=>r.tipo==='CONG').reduce((a,r)=>a+(r[w]||0),0);
+    const diff=i>0?totals[i]-totals[i-1]:0;
+    const cls=diff>0?'up':diff<0?'dn':'';
+    return`<div class="kpi"><div class="kpi-lbl">📦 Inicio ${w}</div>
+      <div class="kpi-val ${cls}">${t.toLocaleString()} cj</div>
+      <div class="kpi-sig">❄️${enf.toLocaleString()} · 🧊${cong.toLocaleString()}${i>0?` · <span class="${cls}">${diff>0?'+':''}${diff}</span>`:''}</div>
+    </div>`;
+  }).join('');
+
+  // Tabla
+  let html=`<thead><tr>
+    <th style="text-align:left;background:#1f497d;color:#fff">Genérico</th>
+    <th style="text-align:center;background:#1f497d;color:#fff">Tipo</th>
+    <th style="background:#1f497d;color:#fff">W27</th>
+    <th style="background:#1f497d;color:#fff">W28</th>
+    <th style="background:#1f497d;color:#fff">W29</th>
+    <th style="background:#1f497d;color:#fff">W30</th>
+    <th style="background:#1f497d;color:#fff">Δ W29→W30</th>
+  </tr></thead><tbody>`;
+  let prevGen=null;
+  SROWS.forEach(r=>{
+    if(r.gen!==prevGen){
+      if(prevGen){
+        const tots=SWW.map(w=>sTotal(prevGen,w));
+        const d=tots[3]-tots[2];
+        html+=`<tr style="background:#dce6f1;font-weight:700">
+          <td colspan="2" style="padding:4px 8px;color:#1f497d">Total ${prevGen}</td>
+          ${tots.map(v=>`<td style="text-align:right;padding:4px 8px">${v||'—'}</td>`).join('')}
+          <td style="text-align:right;padding:4px 8px;color:${d>0?'#16a34a':d<0?'#dc2626':'#999'}">${d>0?'+':''}${d}</td>
+        </tr>`;
+      }
+      html+=`<tr><td colspan="7" style="background:#e8edf2;font-weight:700;color:#1f497d;padding:7px 8px;font-size:12px">${r.gen}</td></tr>`;
+      prevGen=r.gen;
+    }
+    const vals=SWW.map(w=>r[w]||0);
+    const d=vals[3]-vals[2];
+    const bg=r.tipo==='ENF'?'#eff6ff':'#faf5ff';
+    html+=`<tr style="background:${bg}">
+      <td style="padding-left:18px;color:#555">${r.tipo==='ENF'?'❄️':'🧊'} ${r.gen}</td>
+      <td style="text-align:center"><span style="font-size:9px;padding:1px 6px;border-radius:10px;font-weight:700;background:${r.tipo==='ENF'?'#dbeafe':'#ede9fe'};color:${r.tipo==='ENF'?'#1d4ed8':'#6d28d9'}">${r.tipo}</span></td>
+      ${vals.map(v=>`<td style="text-align:right">${v?v.toLocaleString():'—'}</td>`).join('')}
+      <td style="text-align:right;font-weight:700;color:${d>0?'#16a34a':d<0?'#dc2626':'#999'}">${d>0?'+':''}${d||'—'}</td>
+    </tr>`;
+  });
+  // Last gen total
+  if(prevGen){
+    const tots=SWW.map(w=>sTotal(prevGen,w));
+    const d=tots[3]-tots[2];
+    html+=`<tr style="background:#dce6f1;font-weight:700">
+      <td colspan="2" style="padding:4px 8px;color:#1f497d">Total ${prevGen}</td>
+      ${tots.map(v=>`<td style="text-align:right;padding:4px 8px">${v||'—'}</td>`).join('')}
+      <td style="text-align:right;padding:4px 8px;color:${d>0?'#16a34a':d<0?'#dc2626':'#999'}">${d>0?'+':''}${d}</td>
+    </tr>`;
+  }
+  const grands=SWW.map(w=>SROWS.reduce((a,r)=>a+(r[w]||0),0));
+  const gd=grands[3]-grands[2];
+  html+=`<tr style="background:#1f497d;color:#fff;font-weight:700">
+    <td colspan="2" style="padding:6px 8px">TOTAL GENERAL</td>
+    ${grands.map(v=>`<td style="text-align:right;padding:6px 8px">${v.toLocaleString()}</td>`).join('')}
+    <td style="text-align:right;padding:6px 8px;color:${gd>0?'#86efac':'#fca5a5'}">${gd>0?'+':''}${gd}</td>
+  </tr>`;
+  document.getElementById('stock-tbl').innerHTML=html+'</tbody>';
+}
+
+function buildStockEvo(){
+  const enfGens=[...new Set(SROWS.filter(r=>r.tipo==='ENF').map(r=>r.gen))];
+  const congGens=[...new Set(SROWS.filter(r=>r.tipo==='CONG').map(r=>r.gen))];
+  mk('cs-enf',{type:'bar',data:{labels:enfGens,datasets:SWW.map((w,i)=>({
+    label:w,data:enfGens.map(g=>sVal(g,'ENF',w)),
+    backgroundColor:SWC[i]+'99',borderColor:SWC[i],borderWidth:1
+  }))},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+    plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:c=>c.dataset.label+': '+c.parsed.x?.toLocaleString()+' cj'}}},
+    scales:{x:{ticks:{callback:v=>v.toLocaleString(),font:{size:9}}},y:{ticks:{font:{size:10}}}}}});
+  mk('cs-cong',{type:'bar',data:{labels:congGens,datasets:SWW.map((w,i)=>({
+    label:w,data:congGens.map(g=>sVal(g,'CONG',w)),
+    backgroundColor:SWC[i]+'99',borderColor:SWC[i],borderWidth:1
+  }))},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+    plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:c=>c.dataset.label+': '+c.parsed.x?.toLocaleString()+' cj'}}},
+    scales:{x:{ticks:{callback:v=>v.toLocaleString(),font:{size:9}}},y:{ticks:{font:{size:10}}}}}});
+}
+
+function buildStockDelta(){
+  const gf=SGENS.filter(g=>sTotal(g,'W29')>0||sTotal(g,'W30')>0);
+  const delta=gf.map(g=>sTotal(g,'W30')-sTotal(g,'W29'));
+  mk('cs-delta',{type:'bar',data:{labels:gf,datasets:[{
+    label:'Δ W29→W30',data:delta,
+    backgroundColor:delta.map(v=>v>=0?'#16a34a66':'#dc262666'),
+    borderColor:delta.map(v=>v>=0?'#16a34a':'#dc2626'),borderWidth:1.5
+  }]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>(c.parsed.x>0?'+':'')+c.parsed.x?.toLocaleString()+' cj'}}},
+    scales:{x:{ticks:{callback:v=>(v>0?'+':'')+v,font:{size:9}},grid:{color:c=>c.tick.value===0?'#888':'#f0f0ea'}},y:{ticks:{font:{size:10}}}}}});
+  mk('cs-w30',{type:'bar',data:{labels:gf,datasets:[
+    {label:'❄️ ENF W30',data:gf.map(g=>sVal(g,'ENF','W30')),backgroundColor:'#3b82f699',borderColor:'#3b82f6',borderWidth:1},
+    {label:'🧊 CONG W30',data:gf.map(g=>sVal(g,'CONG','W30')),backgroundColor:'#9333ea99',borderColor:'#9333ea',borderWidth:1},
+  ]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+    plugins:{legend:{display:true,labels:{font:{size:10},usePointStyle:true,pointStyle:'rect'}},
+      tooltip:{mode:'index',intersect:false,callbacks:{label:c=>c.dataset.label+': '+c.parsed.x?.toLocaleString()+' cj'}}},
+    scales:{x:{ticks:{callback:v=>v.toLocaleString(),font:{size:9}}},y:{ticks:{font:{size:10}}}}}});
+}
+
+function sv(v){
+  ['resumen','heatmap','productos','tendencias','elasticidad','banderita','stock'].forEach(x=>document.getElementById('v-'+x).style.display=x===v?'':'none');
+  document.querySelectorAll('.pill').forEach((b,i)=>b.classList.toggle('on',['resumen','heatmap','productos','tendencias','elasticidad','banderita','stock'][i]===v));
+  if(v==='tendencias'){buildPSel();buildTrends();}
+  if(v==='elasticidad')buildElast();
+  if(v==='heatmap')buildHeat();
+  if(v==='productos')buildPGrid(cf);
+  if(v==='banderita')buildBanderita();
+  if(v==='stock'){buildStock();};
+}
+function fp(f){cf=f;document.querySelectorAll('.fbtn').forEach((b,i)=>b.classList.toggle('on',['all','dn','up','stable'][i]===f));buildPGrid(f);}
+
+buildKPI();buildPSel();buildTrends();
+</script>
+</body>
+</html>
