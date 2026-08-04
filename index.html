@@ -718,14 +718,12 @@ function buildStock(){
   }).join('');
 
   // Tabla
+    const lastTwo=SWW.slice(-2);
   let html=`<thead><tr>
     <th style="text-align:left;background:#1f497d;color:#fff">Genérico</th>
     <th style="text-align:center;background:#1f497d;color:#fff">Tipo</th>
-    <th style="background:#1f497d;color:#fff">W27</th>
-    <th style="background:#1f497d;color:#fff">W28</th>
-    <th style="background:#1f497d;color:#fff">W29</th>
-    <th style="background:#1f497d;color:#fff">W30</th>
-    <th style="background:#1f497d;color:#fff">Δ W31→W32</th>
+    ${SWW.map(w=>`<th style="background:#1f497d;color:#fff">${w}</th>`).join('')}
+    <th style="background:#1f497d;color:#fff">Δ ${lastTwo[0]}→${lastTwo[1]}</th>
   </tr></thead><tbody>`;
   let prevGen=null;
   SROWS.forEach(r=>{
