@@ -504,7 +504,7 @@ function getCajas(p,w){
   if(currentTipo==='cong') return d.cong_c||0;
   return d.c||0;
 }
-const PROD_TO_GEN={"VACIO":"VACIO","NALGA C/T":"NALGA C/T","NALGA S/T":"NALGA S/T","TAPA NALGA":"TAPA NALGA","TAPA CUADRIL":"TAPA CUADRIL","COLITA":"COLITA","BOLA LOMO":"BOLA LOMO","CUADRADA":"CUADRADA","PECETO":"PECETO","MATAMBRE":"MATAMBRE","MOLLEJA":"MOLLEJA","AGUJA":"AGUJA","TORTUGUITA":"TORTUGUITA","SHORT RIBS 7C":"SHORT RIBS 7C","BIFE VACIO":"BIFE VACIO","BIFE A/ANGOSTO":"BIFE A/ANGOSTO","LOMO":"LOMO","ENTRAÑA":"ENTRAÑA","BANDERITA 4C":"BANDERITA 4C"};
+const PROD_TO_GEN={"TRAQUEA":"TRAQUEA","RECORTE":"RECORTE","BRISKET":"BRISKET","ESOFAGO":"ESOFAGO","TOP PLATE":"TOP PLATE","CORAZON CUADRIL":"CORAZON CUADRIL","PALETA":"PALETA","GARRON":"GARRON","COGOTE":"COGOTE","VACIO":"VACIO","NALGA C/T":"NALGA C/T","NALGA S/T":"NALGA S/T","TAPA NALGA":"TAPA NALGA","TAPA CUADRIL":"TAPA CUADRIL","COLITA":"COLITA","BOLA LOMO":"BOLA LOMO","CUADRADA":"CUADRADA","PECETO":"PECETO","MATAMBRE":"MATAMBRE","MOLLEJA":"MOLLEJA","AGUJA":"AGUJA","TORTUGUITA":"TORTUGUITA","SHORT RIBS 7C":"SHORT RIBS 7C","BIFE VACIO":"BIFE VACIO","BIFE A/ANGOSTO":"BIFE A/ANGOSTO","LOMO":"LOMO","ENTRAÑA":"ENTRAÑA","BANDERITA 4C":"BANDERITA 4C"};
 function getStock(prod,w){
   const gen=PROD_TO_GEN[prod];
   if(!gen||!SWW.includes(w)) return null;
@@ -694,6 +694,7 @@ const SWC = ["#3b82f6","#16a34a","#d97706","#9333ea"];
 const SROWS = [
 {"gen":"VACIO","tipo":"ENF","W36":3179,"W37":3405,"W38":2962,"W39":1134},
 {"gen":"VACIO","tipo":"CONG","W36":3283,"W37":2891,"W38":2305,"W39":1921},
+{"gen":"TRAQUEA","tipo":"CONG","W36":1070,"W37":1070,"W38":1070,"W39":1070},
 {"gen":"NALGA C/T","tipo":"ENF","W36":152,"W37":332,"W38":303,"W39":157},
 {"gen":"NALGA C/T","tipo":"CONG","W36":203,"W37":122,"W38":65,"W39":65},
 {"gen":"NALGA S/T","tipo":"ENF","W36":97,"W37":29,"W38":109,"W39":38},
@@ -711,19 +712,31 @@ const SROWS = [
 {"gen":"CUADRADA","tipo":"CONG","W36":84,"W37":55,"W38":64,"W39":79},
 {"gen":"PECETO","tipo":"ENF","W36":118,"W37":9,"W38":111,"W39":26},
 {"gen":"PECETO","tipo":"CONG","W36":24,"W37":35,"W38":43,"W39":34},
-{"gen":"SHORT RIBS 7C","tipo":"CONG","W36":195,"W37":256,"W38":252,"W39":338},
-{"gen":"BANDERITA 4C","tipo":"ENF","W36":5,"W37":5,"W38":5,"W39":5},
+{"gen":"RECORTE","tipo":"CONG","W36":273,"W37":273,"W38":273,"W39":273},
+{"gen":"SHORT RIBS 7C","tipo":"CONG","W36":200,"W37":271,"W38":266,"W39":356},
+{"gen":"BANDERITA 4C","tipo":"ENF","W36":5,"W37":0,"W38":0,"W39":0},
 {"gen":"BANDERITA 4C","tipo":"CONG","W36":582,"W37":630,"W38":698,"W39":669},
-{"gen":"BIFE VACIO","tipo":"ENF","W36":40,"W37":5,"W38":10,"W39":9},
+{"gen":"BIFE VACIO","tipo":"ENF","W36":41,"W37":5,"W38":10,"W39":9},
 {"gen":"BIFE A/ANGOSTO","tipo":"ENF","W36":4,"W37":10,"W38":16,"W39":25},
 {"gen":"BIFE A/ANGOSTO","tipo":"CONG","W36":66,"W37":70,"W38":82,"W39":89},
-{"gen":"LOMO","tipo":"ENF","W36":3,"W37":4,"W38":5,"W39":8},
+{"gen":"LOMO","tipo":"ENF","W36":3,"W37":4,"W38":6,"W39":9},
 {"gen":"LOMO","tipo":"CONG","W36":6,"W37":7,"W38":9,"W39":13},
 {"gen":"AGUJA","tipo":"ENF","W36":5,"W37":6,"W38":7,"W39":12},
 {"gen":"TORTUGUITA","tipo":"ENF","W36":3,"W37":5,"W38":8,"W39":5},
 {"gen":"TORTUGUITA","tipo":"CONG","W36":12,"W37":15,"W38":17,"W39":20},
-{"gen":"ENTRAÑA","tipo":"ENF","W36":0,"W37":0,"W38":0,"W39":1},
-{"gen":"MOLLEJA","tipo":"CONG","W36":363,"W37":368,"W38":0,"W39":0}
+{"gen":"ENTRAÑA","tipo":"ENF","W36":1,"W37":1,"W38":2,"W39":3},
+{"gen":"ENTRAÑA","tipo":"CONG","W36":155,"W37":120,"W38":110,"W39":7},
+{"gen":"MOLLEJA","tipo":"CONG","W36":3,"W37":374,"W38":3,"W39":3},
+{"gen":"BRISKET","tipo":"ENF","W36":6,"W37":5,"W38":7,"W39":10},
+{"gen":"BRISKET","tipo":"CONG","W36":53,"W37":52,"W38":58,"W39":67},
+{"gen":"ESOFAGO","tipo":"CONG","W36":53,"W37":76,"W38":101,"W39":135},
+{"gen":"TOP PLATE","tipo":"CONG","W36":46,"W37":46,"W38":46,"W39":48},
+{"gen":"CORAZON CUADRIL","tipo":"ENF","W36":4,"W37":6,"W38":8,"W39":13},
+{"gen":"CORAZON CUADRIL","tipo":"CONG","W36":20,"W37":3,"W38":7,"W39":9},
+{"gen":"PALETA","tipo":"ENF","W36":5,"W37":10,"W38":9,"W39":10},
+{"gen":"PALETA","tipo":"CONG","W36":35,"W37":31,"W38":37,"W39":46},
+{"gen":"GARRON","tipo":"ENF","W36":8,"W37":13,"W38":14,"W39":27},
+{"gen":"COGOTE","tipo":"ENF","W36":6,"W37":6,"W38":7,"W39":13}
 ];
 const SGENS=[...new Set(SROWS.map(r=>r.gen))];
 
